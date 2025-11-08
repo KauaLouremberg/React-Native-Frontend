@@ -11,9 +11,14 @@ export const inputStyle = StyleSheet.create({
     color: colors.heading,
     fontSize: 14,
   },
+  textContainer: {
+    position: 'relative',
+    width: '100%',
+  },
   input: {
     width: '100%',
     paddingLeft: 24,
+    paddingRight: 48,
     height: 64,
     borderWidth: 1,
     borderRadius: 16,
@@ -21,5 +26,11 @@ export const inputStyle = StyleSheet.create({
     backgroundColor: colors.input,
     fontFamily: POPPINS.regular,
     color: colors.neutral[500],
+  },
+  icon: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    transform: [{ translateY: -12 }],
   },
 });

@@ -21,7 +21,7 @@ export default function Login() {
 
       <View style={loginWrapper}>
         <Input label="Login" placeholder="Login" />
-        <Input label="Senha" placeholder="Senha" />
+        <Input label="Senha" placeholder="Senha" isPassword />
       </View>
     </View>
   );
