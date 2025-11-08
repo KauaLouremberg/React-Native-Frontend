@@ -51,9 +51,9 @@ export function Input({
             style={icon}
           >
             {showPassword ? (
-              <EyeOff size={22} color={colors.neutral[600]} />
+              <EyeOff size={20} color={colors.neutral[500]} />
             ) : (
-              <Eye size={22} color={colors.neutral[600]} />
+              <Eye size={20} color={colors.neutral[500]} />
             )}
           </TouchableOpacity>
         )}
