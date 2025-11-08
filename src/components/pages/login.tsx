@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { InfoIcon } from 'lucide-react-native';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
 import { loginStyle } from '../../styles/login/login-style';
 import { ButtonCore } from '../buttons/button-core';
@@ -25,7 +25,6 @@ export default function Login({ navigation }: any) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-
     if (username === '' || password === '') {
       ToastNotify({
         type: 'error',
@@ -33,7 +32,7 @@ export default function Login({ navigation }: any) {
         message: 'Usuário e Senha nao podem estar vazios',
         time: 1500,
       });
-      return
+      return;
     }
 
     try {
@@ -51,7 +50,7 @@ export default function Login({ navigation }: any) {
         type: 'success',
         title: 'Sucesso!',
         message: `Seja Bem-Vindo ${username}`,
-        time: 1500
+        time: 1500,
       });
       navigation.navigate('Dashboard');
     } catch {
@@ -59,7 +58,7 @@ export default function Login({ navigation }: any) {
         type: 'error',
         title: 'Erro!',
         message: 'Usuário ou senha incorretos!',
-        time: 2500
+        time: 2500,
       });
     }
   };
@@ -87,9 +86,12 @@ export default function Login({ navigation }: any) {
           value={password}
           onChangeText={setPassword}
         />
-        <Texto style={forgotPasswordText} align="right">
-          Esqueceu sua senha?
-        </Texto>
+
+        <TouchableOpacity activeOpacity={0.6}>
+          <Texto style={forgotPasswordText} align="right">
+            Esqueceu sua senha?
+          </Texto>
+        </TouchableOpacity>
 
         <View style={buttonWrapper}>
           <ButtonCore onPress={handleLogin}>Entrar</ButtonCore>
