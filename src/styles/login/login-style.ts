@@ -27,7 +27,7 @@ export const loginStyle = StyleSheet.create({
     color: colors.heading,
   },
   loginWrapper: {
-    marginTop: 90,
+    marginTop: 50,
     gap: 24,
   },
   forgotPasswordText: {
@@ -37,5 +37,9 @@ export const loginStyle = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 8,
+  },
+  clickHereWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
 });

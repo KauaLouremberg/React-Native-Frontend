@@ -20,6 +20,7 @@ export default function Login({ navigation }: any) {
     loginWrapper,
     forgotPasswordText,
     buttonWrapper,
+    clickHereWrapper,
   } = loginStyle;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -95,6 +96,11 @@ export default function Login({ navigation }: any) {
 
         <View style={buttonWrapper}>
           <ButtonCore onPress={handleLogin}>Entrar</ButtonCore>
+        </View>
+
+        <View style={clickHereWrapper}>
+          <Texto>Ainda não possui uma conta? </Texto>
+          <Texto style={forgotPasswordText}>Toque aqui</Texto>
         </View>
       </View>
     </View>
