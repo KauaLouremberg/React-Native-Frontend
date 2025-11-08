@@ -1,9 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import Header from './components/HeaderComponent';
+import Configuracoes from './components/pages/Configuracoes';
 import Dashboard from './components/pages/Dashboard';
 import Login from './components/pages/login';
 import { gestureStyle } from './styles/gesture/gesture-style';
@@ -16,6 +19,7 @@ function App() {
   const { keyboard: Keyboard } = keyboardStyle;
   const { safeArea: SafeArea } = safeAreaStyle;
   const { gesture: Gesture } = gestureStyle;
+  const [currentRoute, setCurrentRoute] = useState<string | undefined>('Login');
 
   return (
     <GestureHandlerRootView style={Gesture}>
@@ -24,7 +28,15 @@ function App() {
           style={Keyboard}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <NavigationContainer>
+          <NavigationContainer
+            onReady={() => setCurrentRoute('Login')}
+            onStateChange={(state) => {
+              const route = state?.routes[state.index];
+              setCurrentRoute(route?.name);
+            }}
+            >
+              
+            {currentRoute !== 'Login' && <Header />}
             <Stack.Navigator initialRouteName="Login">
               <Stack.Screen
                 name="Login"
@@ -44,6 +56,21 @@ function App() {
                 component={Dashboard}
                 options={{
                   headerShown: false,
+                  headerTransparent: true,
+                  gestureEnabled: true,
+                  fullScreenGestureEnabled: true,
+                  animation: Platform.select({
+                    ios: 'default',
+                    android: 'default',
+                  }),
+                }}
+              />
+              <Stack.Screen
+                name="Configuracoes"
+                component={Configuracoes}
+                options={{
+                  headerShown: false,
+                  headerTransparent: true,
                   gestureEnabled: true,
                   fullScreenGestureEnabled: true,
                   animation: Platform.select({
