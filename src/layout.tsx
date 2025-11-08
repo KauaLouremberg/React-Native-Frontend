@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import Dashboard from './components/pages/Dashboard';
 import Login from './components/pages/login';
 import { gestureStyle } from './styles/gesture/gesture-style';
@@ -53,6 +54,7 @@ function App() {
               />
             </Stack.Navigator>
           </NavigationContainer>
+          <Toast />
         </KeyboardAvoidingView>
       </SafeAreaView>
     </GestureHandlerRootView>
