@@ -25,6 +25,17 @@ export default function Login({ navigation }: any) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
+
+    if (username === '' || password === '') {
+      ToastNotify({
+        type: 'error',
+        title: 'Erro!',
+        message: 'Usuário e Senha nao podem estar vazios',
+        time: 1500,
+      });
+      return
+    }
+
     try {
       const res = await api.post('login/', {
         username,
@@ -40,6 +51,7 @@ export default function Login({ navigation }: any) {
         type: 'success',
         title: 'Sucesso!',
         message: `Seja Bem-Vindo ${username}`,
+        time: 1500
       });
       navigation.navigate('Dashboard');
     } catch {
@@ -47,6 +59,7 @@ export default function Login({ navigation }: any) {
         type: 'error',
         title: 'Erro!',
         message: 'Usuário ou senha incorretos!',
+        time: 2500
       });
     }
   };
