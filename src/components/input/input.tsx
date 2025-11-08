@@ -1,3 +1,4 @@
+'use client';
 import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
@@ -25,9 +26,17 @@ export function Input({
   isPassword = false,
   ...rest
 }: InputInterface) {
-  const { container, label: Label, input, textContainer, icon } = inputStyle;
+  const {
+    container,
+    label: Label,
+    input,
+    textContainer,
+    icon,
+    inputFocused,
+  } = inputStyle;
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -36,7 +45,8 @@ export function Input({
 
         <View style={textContainer}>
           <TextInput
-            style={[input, style]}
+            selectionColor={colors.primaryLight}
+            style={[input, isFocused ? inputFocused : '', style]}
             {...rest}
             placeholder={placeholder}
             placeholderTextColor={colors.neutral[500]}
@@ -46,6 +56,8 @@ export function Input({
             autoComplete="off"
             importantForAutofill="no"
             secureTextEntry={isPassword && !showPassword}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
 
           {isPassword && (

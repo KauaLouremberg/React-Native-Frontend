@@ -27,6 +27,9 @@ export const inputStyle = StyleSheet.create({
     fontFamily: POPPINS.regular,
     color: colors.neutral[500],
   },
+  inputFocused: {
+    borderColor: colors.primaryLight,
+  },
   icon: {
     position: 'absolute',
     right: 16,
