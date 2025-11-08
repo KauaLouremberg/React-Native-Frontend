@@ -1,9 +1,13 @@
+'use client';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { InfoIcon } from 'lucide-react-native';
-import { useState } from 'react';
+import { Globe, InfoIcon, User } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
+import { ActionButtonInteface } from '../../core/interface/action-button-interface';
 import { loginStyle } from '../../styles/login/login-style';
+import { ActionButton } from '../buttons/action-button';
 import { ButtonCore } from '../buttons/button-core';
 import api from '../conexao/api';
 import { ToastNotify } from '../ElementosForm/Toast';
@@ -21,6 +25,7 @@ export default function Login({ navigation }: any) {
     forgotPasswordText,
     buttonWrapper,
     clickHereWrapper,
+    actionButtonWrapper,
   } = loginStyle;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -64,6 +69,24 @@ export default function Login({ navigation }: any) {
     }
   };
 
+  const values = useMemo<ActionButtonInteface[]>(
+    () => [
+      {
+        icon: Globe,
+        description: 'Website',
+      },
+      {
+        icon: User,
+        description: 'Suporte',
+      },
+      {
+        icon: InfoIcon,
+        description: 'Sobre nós',
+      },
+    ],
+    [],
+  );
+
   return (
     <View id="login-section" style={section}>
       <View style={wrapper}>
@@ -102,6 +125,10 @@ export default function Login({ navigation }: any) {
           <Texto>Ainda não possui uma conta? </Texto>
           <Texto style={forgotPasswordText}>Toque aqui</Texto>
         </View>
+      </View>
+
+      <View style={actionButtonWrapper}>
+        <ActionButton values={values} />
       </View>
     </View>
   );

@@ -42,4 +42,10 @@ export const loginStyle = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
+  actionButtonWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 40,
+  },
 });
