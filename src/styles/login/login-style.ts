@@ -26,4 +26,8 @@ export const loginStyle = StyleSheet.create({
     fontFamily: POPPINS.medium,
     color: colors.heading,
   },
+  loginWrapper: {
+    marginTop: 90,
+    gap: 24,
+  },
 });
