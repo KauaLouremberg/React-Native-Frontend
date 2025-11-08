@@ -5,13 +5,17 @@ import { loginStyle } from '../../styles/login/login-style';
 import { Texto } from '../texto';
 
 export default function Login() {
-  const { section, container, text } = loginStyle;
+  const { section, wrapper, container, text, title } = loginStyle;
 
   return (
     <View id="login-section" style={section}>
-      <View style={container}>
-        <Texto style={text}>Bem-vindo ao Amparo.</Texto>
-        <InfoIcon color={colors.neutral[500]} size={16} />
+      <View style={wrapper}>
+        <View style={container}>
+          <Texto style={text}>Bem-vindo ao Amparo.</Texto>
+          <InfoIcon color={colors.neutral[500]} size={16} />
+        </View>
+
+        <Texto style={title}>Acesse sua conta aqui.</Texto>
       </View>
     </View>
   );

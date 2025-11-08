@@ -7,6 +7,10 @@ export const loginStyle = StyleSheet.create({
     paddingTop: 40,
     paddingHorizontal: 24,
   },
+  wrapper: {
+    flex: 1,
+    gap: 20,
+  },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -16,5 +20,11 @@ export const loginStyle = StyleSheet.create({
   text: {
     color: colors.neutral[500],
     fontFamily: POPPINS.medium,
+  },
+  title: {
+    width: 224,
+    fontSize: 24,
+    fontFamily: POPPINS.medium,
+    color: colors.heading,
   },
 });
