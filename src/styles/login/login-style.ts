@@ -4,15 +4,14 @@ import { POPPINS } from '../../core/constants/poppins';
 
 export const loginStyle = StyleSheet.create({
   section: {
+    flex: 1,
     paddingTop: 40,
     paddingHorizontal: 24,
   },
   wrapper: {
-    flex: 1,
     gap: 20,
   },
   container: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
