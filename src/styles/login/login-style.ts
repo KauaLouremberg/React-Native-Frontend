@@ -35,4 +35,7 @@ export const loginStyle = StyleSheet.create({
     fontFamily: POPPINS.medium,
     fontSize: 13,
   },
+  buttonWrapper: {
+    marginTop: 8,
+  },
 });
