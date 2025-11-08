@@ -30,4 +30,9 @@ export const loginStyle = StyleSheet.create({
     marginTop: 90,
     gap: 24,
   },
+  forgotPasswordText: {
+    color: colors.primary,
+    fontFamily: POPPINS.medium,
+    fontSize: 13,
+  },
 });

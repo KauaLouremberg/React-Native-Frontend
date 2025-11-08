@@ -6,7 +6,15 @@ import { Input } from '../input/input';
 import { Texto } from '../texto';
 
 export default function Login() {
-  const { section, wrapper, container, text, title, loginWrapper } = loginStyle;
+  const {
+    section,
+    wrapper,
+    container,
+    text,
+    title,
+    loginWrapper,
+    forgotPasswordText,
+  } = loginStyle;
 
   return (
     <View id="login-section" style={section}>
@@ -22,6 +30,9 @@ export default function Login() {
       <View style={loginWrapper}>
         <Input label="Login" placeholder="Login" />
         <Input label="Senha" placeholder="Senha" isPassword />
+        <Texto style={forgotPasswordText} align="right">
+          Esqueceu sua senha?
+        </Texto>
       </View>
     </View>
   );
