@@ -1,0 +1,10 @@
+index.js
+babel.config.js
+metro.config.js
+jest.config.js
+react-native.config.js
+.eslintrc.js
+node_modules/
+android/
+ios/
+build/
