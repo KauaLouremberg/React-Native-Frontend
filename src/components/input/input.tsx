@@ -15,7 +15,7 @@ import { Texto } from '../texto';
 
 export interface InputInterface extends TextInputProps {
   label: string;
-  placeholder: string;
+  placeholder?: string;
   isPassword?: boolean;
 }
 
