@@ -5,10 +5,12 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { Provider } from 'react-redux';
 import Header from './components/HeaderComponent';
 import Configuracoes from './components/pages/Configuracoes';
 import Dashboard from './components/pages/Dashboard';
 import Login from './components/pages/login';
+import store from './store';
 import { gestureStyle } from './styles/gesture/gesture-style';
 import { keyboardStyle } from './styles/keyboard/keyboard-style';
 import { safeAreaStyle } from './styles/safe-area/safe-area-style';
@@ -22,6 +24,7 @@ function App() {
   const [currentRoute, setCurrentRoute] = useState<string | undefined>('Login');
 
   return (
+    <Provider store={store}>
     <GestureHandlerRootView style={Gesture}>
       <SafeAreaView style={SafeArea} edges={['bottom', 'left', 'right']}>
         <KeyboardAvoidingView
@@ -85,6 +88,7 @@ function App() {
         </KeyboardAvoidingView>
       </SafeAreaView>
     </GestureHandlerRootView>
+    </Provider>
   );
 }
 export default App;

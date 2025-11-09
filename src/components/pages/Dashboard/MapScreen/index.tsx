@@ -3,17 +3,19 @@ import React, { useRef, useState } from 'react';
 import { Alert, Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker } from 'react-native-maps';
+import { useSelector } from 'react-redux';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
 import { ToastNotify } from '../../../ElementosForm/Toast';
 import { requestLocationPermission } from '../../../PermissionComponent';
 
-export default function MapScreen({ navigation }: any) {
+export default function MapScreen() {
   const [region, setRegion] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [showMap, setShowMap] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const mapRef = useRef<any>(null);
+  const user = useSelector((state: any) => state.user);
 
   const initLocation = async () => {
     const ok = await requestLocationPermission();
@@ -73,7 +75,16 @@ export default function MapScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       {!showMap ? (
-        <ButtonCore onPress={handleShowMap} style={{height: 100, width: 100, top: 200}}>
+        <ButtonCore 
+          disabled={user.perfil === "usuario" ? false : true} 
+          onPress={handleShowMap} 
+          style={
+            {
+              height: 100,
+              width: 100, 
+              top: 200
+            }}
+            >
           <MapPin />
         </ButtonCore>
       ) : (
