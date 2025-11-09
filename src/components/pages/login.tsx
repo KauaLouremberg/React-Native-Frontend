@@ -3,7 +3,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Globe, InfoIcon, User } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
 import { ActionButtonInteface } from '../../core/interface/action-button-interface';
 import { loginStyle } from '../../styles/login/login-style';
@@ -26,6 +26,7 @@ export default function Login({ navigation }: any) {
     buttonWrapper,
     clickHereWrapper,
     actionButtonWrapper,
+    justiceWrapper,
   } = loginStyle;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -88,7 +89,11 @@ export default function Login({ navigation }: any) {
   );
 
   return (
-    <View id="login-section" style={section}>
+    <ScrollView
+      id="login-section"
+      style={section}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={wrapper}>
         <View style={container}>
           <Texto style={text}>Bem-vindo ao Amparo.</Texto>
@@ -130,6 +135,12 @@ export default function Login({ navigation }: any) {
       <View style={actionButtonWrapper}>
         <ActionButton values={values} />
       </View>
-    </View>
+
+      <View style={justiceWrapper}>
+        <Texto align="center">
+          © 2025 Amparo. Todos os direitos reservados.
+        </Texto>
+      </View>
+    </ScrollView>
   );
 }

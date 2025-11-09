@@ -48,4 +48,8 @@ export const loginStyle = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 40,
   },
+  justiceWrapper: {
+    marginTop: 70,
+    paddingBottom: 16,
+  },
 });
