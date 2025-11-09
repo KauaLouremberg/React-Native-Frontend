@@ -19,3 +19,19 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force 'com.google.android.gms:play-services-location:21.3.0'
+            force 'com.google.android.gms:play-services-base:18.5.0'
+            force 'com.google.android.gms:play-services-basement:18.5.0'
+            force 'com.google.android.gms:play-services-maps:18.2.0'
+        }
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
