@@ -1,7 +1,5 @@
-'use client';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Globe, InfoIcon, User } from 'lucide-react-native';
+import { Globe, InfoIcon, User } from "lucide-react-native";
 import { useMemo, useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
