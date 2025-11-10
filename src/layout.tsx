@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 import Header from './components/HeaderComponent';
 import Configuracoes from './components/pages/Configuracoes';
@@ -85,6 +86,7 @@ function App() {
                   />
                 </Stack.Navigator>
               </NavigationContainer>
+              <Toast />
             </KeyboardAvoidingView>
           </SafeAreaView>
         </GestureHandlerRootView>

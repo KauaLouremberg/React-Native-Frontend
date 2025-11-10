@@ -1,0 +1,16 @@
+export const ERRORS = {
+  required_field: 'Preencha este campo',
+  field_max_length: 'O campo deve conter no máximo {max} caracteres',
+  invalid_email: 'E-mail inválido',
+  invalid_password: 'Senha inválida',
+  invalid_cpf: 'CPF inválido',
+  invalid_cnpj: 'CNPJ inválido',
+  invalid_phone: 'Telefone inválido',
+  invalid_date: 'Data inválida',
+  invalid_zip_code: 'CEP inválido',
+  invalid_url: 'URL inválida',
+  invalid_number: 'Número inválido',
+  invalid_credit_card: 'Número do cartão de crédito inválido',
+  invalid_expiration_date: 'Data de validade inválida',
+  invalid_security_code: 'Código de segurança inválido',
+};
