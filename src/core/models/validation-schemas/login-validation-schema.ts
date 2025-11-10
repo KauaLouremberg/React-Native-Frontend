@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getErrorLabel } from '../../../components/core/errors/get-error-label';
+import { getErrorLabel } from '../../errors/get-error-label';
 
 export const loginValidationSchema = z.object({
   username: z
