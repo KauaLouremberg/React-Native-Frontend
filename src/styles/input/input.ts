@@ -36,4 +36,9 @@ export const inputStyle = StyleSheet.create({
     top: '50%',
     transform: [{ translateY: -12 }],
   },
+  errorMessage: {
+    color: colors.danger,
+    fontFamily: POPPINS.regular,
+    fontSize: 14,
+  },
 });

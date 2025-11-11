@@ -1,5 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -22,73 +23,75 @@ function App() {
   const { safeArea: SafeArea } = safeAreaStyle;
   const { gesture: Gesture } = gestureStyle;
   const [currentRoute, setCurrentRoute] = useState<string | undefined>('Login');
+  const queryClient = new QueryClient();
 
   return (
-    <Provider store={store}>
-    <GestureHandlerRootView style={Gesture}>
-      <SafeAreaView style={SafeArea} edges={['bottom', 'left', 'right']}>
-        <KeyboardAvoidingView
-          style={Keyboard}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <NavigationContainer
-            onReady={() => setCurrentRoute('Login')}
-            onStateChange={(state) => {
-              const route = state?.routes[state.index];
-              setCurrentRoute(route?.name);
-            }}
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <GestureHandlerRootView style={Gesture}>
+          <SafeAreaView style={SafeArea} edges={['bottom', 'left', 'right']}>
+            <KeyboardAvoidingView
+              style={Keyboard}
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-              
-            {currentRoute !== 'Login' && <Header />}
-            <Stack.Navigator initialRouteName="Login">
-              <Stack.Screen
-                name="Login"
-                component={Login}
-                options={{
-                  headerShown: false,
-                  gestureEnabled: true,
-                  fullScreenGestureEnabled: true,
-                  animation: Platform.select({
-                    ios: 'default',
-                    android: 'slide_from_right',
-                  }),
+              <NavigationContainer
+                onReady={() => setCurrentRoute('Login')}
+                onStateChange={state => {
+                  const route = state?.routes[state.index];
+                  setCurrentRoute(route?.name);
                 }}
-              />
-              <Stack.Screen
-                name="Dashboard"
-                component={Dashboard}
-                options={{
-                  headerShown: false,
-                  headerTransparent: true,
-                  gestureEnabled: true,
-                  fullScreenGestureEnabled: true,
-                  animation: Platform.select({
-                    ios: 'default',
-                    android: 'default',
-                  }),
-                }}
-              />
-              <Stack.Screen
-                name="Configuracoes"
-                component={Configuracoes}
-                options={{
-                  headerShown: false,
-                  headerTransparent: true,
-                  gestureEnabled: true,
-                  fullScreenGestureEnabled: true,
-                  animation: Platform.select({
-                    ios: 'default',
-                    android: 'slide_from_right',
-                  }),
-                }}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
-          <Toast />
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </GestureHandlerRootView>
-    </Provider>
+              >
+                {currentRoute !== 'Login' && <Header />}
+                <Stack.Navigator initialRouteName="Login">
+                  <Stack.Screen
+                    name="Login"
+                    component={Login}
+                    options={{
+                      headerShown: false,
+                      gestureEnabled: true,
+                      fullScreenGestureEnabled: true,
+                      animation: Platform.select({
+                        ios: 'default',
+                        android: 'slide_from_right',
+                      }),
+                    }}
+                  />
+                  <Stack.Screen
+                    name="Dashboard"
+                    component={Dashboard}
+                    options={{
+                      headerShown: false,
+                      headerTransparent: true,
+                      gestureEnabled: true,
+                      fullScreenGestureEnabled: true,
+                      animation: Platform.select({
+                        ios: 'default',
+                        android: 'default',
+                      }),
+                    }}
+                  />
+                  <Stack.Screen
+                    name="Configuracoes"
+                    component={Configuracoes}
+                    options={{
+                      headerShown: false,
+                      headerTransparent: true,
+                      gestureEnabled: true,
+                      fullScreenGestureEnabled: true,
+                      animation: Platform.select({
+                        ios: 'default',
+                        android: 'slide_from_right',
+                      }),
+                    }}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+              <Toast />
+            </KeyboardAvoidingView>
+          </SafeAreaView>
+        </GestureHandlerRootView>
+      </Provider>
+    </QueryClientProvider>
   );
 }
 export default App;

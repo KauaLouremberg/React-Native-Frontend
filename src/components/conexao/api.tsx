@@ -1,12 +1,13 @@
+import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://192.168.100.22:8000/api/',
+  baseURL: API_URL,
 });
 
 api.interceptors.request.use(
-  async (config) => {
+  async config => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
       if (token) {
@@ -17,9 +18,9 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  error => {
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
