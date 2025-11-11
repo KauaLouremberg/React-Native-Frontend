@@ -1,13 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Globe, InfoIcon, User } from "lucide-react-native";
-import { useMemo, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Globe, InfoIcon, User } from 'lucide-react-native';
+import { useMemo } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
+import { useLoginRequestMutation } from '../../core/http/react-query/login';
 import { ActionButtonInteface } from '../../core/interface/action-button-interface';
+import { LoginValidationDto } from '../../core/models/dto/login-validation-dto';
+import { loginValidationSchema } from '../../core/models/validation-schemas/login-validation-schema';
 import { loginStyle } from '../../styles/login/login-style';
 import { ActionButton } from '../buttons/action-button';
 import { ButtonCore } from '../buttons/button-core';
-import api from '../conexao/api';
 import { ToastNotify } from '../ElementosForm/Toast';
 import { Input } from '../input/input';
 import { Texto } from '../texto';
@@ -26,47 +29,45 @@ export default function Login({ navigation }: any) {
     actionButtonWrapper,
     justiceWrapper,
   } = loginStyle;
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = async () => {
-    if (username === '' || password === '') {
-      ToastNotify({
-        type: 'error',
-        title: 'Erro!',
-        message: 'Usuário e Senha nao podem estar vazios',
-        time: 1500,
-      });
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<LoginValidationDto>({
+    resolver: zodResolver(loginValidationSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  });
 
-    try {
-      const res = await api.post('login/', {
-        username,
-        password,
-      });
-
-      const { access, refresh } = res.data;
-
-      await AsyncStorage.setItem('accessToken', access);
-      await AsyncStorage.setItem('refreshToken', refresh);
-
+  const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
+    onSuccess: () => {
       ToastNotify({
         type: 'success',
-        title: 'Sucesso!',
-        message: `Seja Bem-Vindo ${username}`,
-        time: 1500,
+        title: 'Login!',
+        message: 'Autenticação realizada!',
+        time: 2500,
       });
+      reset();
       navigation.navigate('Dashboard');
+    },
+  });
+
+  async function onSubmit(data: LoginValidationDto) {
+    try {
+      await loginRequestAsync({ data });
     } catch {
       ToastNotify({
         type: 'error',
         title: 'Erro!',
-        message: 'Usuário ou senha incorretos!',
+        message: 'Ocorreu um erro ao efetuar a autenticação!',
         time: 2500,
       });
     }
-  };
+  }
 
   const values = useMemo<ActionButtonInteface[]>(
     () => [
@@ -101,17 +102,32 @@ export default function Login({ navigation }: any) {
       </View>
 
       <View style={loginWrapper}>
-        <Input
-          label="Login"
-          placeholder="Login"
-          value={username}
-          onChangeText={setUsername}
+        <Controller
+          control={control}
+          name="username"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              label="Login"
+              placeholder="Login"
+              error={errors.username?.message}
+            />
+          )}
         />
-        <Input
-          label="Senha"
-          placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              label="Senha"
+              placeholder="Senha"
+              error={errors.password?.message}
+              isPassword
+            />
+          )}
         />
 
         <TouchableOpacity activeOpacity={0.6}>
@@ -121,7 +137,12 @@ export default function Login({ navigation }: any) {
         </TouchableOpacity>
 
         <View style={buttonWrapper}>
-          <ButtonCore onPress={handleLogin}>Entrar</ButtonCore>
+          <ButtonCore
+            onPress={handleSubmit(onSubmit)}
+            disabled={isLoginRequesting}
+          >
+            Entrar
+          </ButtonCore>
         </View>
 
         <View style={clickHereWrapper}>
