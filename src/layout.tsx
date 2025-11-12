@@ -1,20 +1,29 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
-import Header from './components/HeaderComponent';
+
 import Configuracoes from './components/pages/Configuracoes';
 import Dashboard from './components/pages/Dashboard';
+import MapScreen from './components/pages/Dashboard/MapScreen';
 import Login from './components/pages/login';
+import { TemplateWithChildren } from './components/TemplateComponent';
 import store from './store';
 import { gestureStyle } from './styles/gesture/gesture-style';
 import { keyboardStyle } from './styles/keyboard/keyboard-style';
 import { safeAreaStyle } from './styles/safe-area/safe-area-style';
+
+const withTemplate = (Component: React.ComponentType) => {
+  return (props: any) => (
+    <TemplateWithChildren navigation={props.navigation}>
+      <Component {...props} />
+    </TemplateWithChildren>
+  );
+};
 
 function App() {
   const Stack = createNativeStackNavigator();
@@ -22,7 +31,7 @@ function App() {
   const { keyboard: Keyboard } = keyboardStyle;
   const { safeArea: SafeArea } = safeAreaStyle;
   const { gesture: Gesture } = gestureStyle;
-  const [currentRoute, setCurrentRoute] = useState<string | undefined>('Login');
+
   const queryClient = new QueryClient();
 
   return (
@@ -34,14 +43,7 @@ function App() {
               style={Keyboard}
               behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-              <NavigationContainer
-                onReady={() => setCurrentRoute('Login')}
-                onStateChange={state => {
-                  const route = state?.routes[state.index];
-                  setCurrentRoute(route?.name);
-                }}
-              >
-                {currentRoute !== 'Login' && <Header />}
+              <NavigationContainer>
                 <Stack.Navigator initialRouteName="Login">
                   <Stack.Screen
                     name="Login"
@@ -58,10 +60,9 @@ function App() {
                   />
                   <Stack.Screen
                     name="Dashboard"
-                    component={Dashboard}
+                    component={withTemplate(Dashboard)}
                     options={{
                       headerShown: false,
-                      headerTransparent: true,
                       gestureEnabled: true,
                       fullScreenGestureEnabled: true,
                       animation: Platform.select({
@@ -72,10 +73,23 @@ function App() {
                   />
                   <Stack.Screen
                     name="Configuracoes"
-                    component={Configuracoes}
+                    component={withTemplate(Configuracoes)}
                     options={{
                       headerShown: false,
-                      headerTransparent: true,
+                      gestureEnabled: true,
+                      fullScreenGestureEnabled: true,
+                      animation: Platform.select({
+                        ios: 'default',
+                        android: 'slide_from_right',
+                      }),
+                    }}
+                  />
+
+                  <Stack.Screen
+                    name="Mapa"
+                    component={withTemplate(MapScreen)}
+                    options={{
+                      headerShown: false,
                       gestureEnabled: true,
                       fullScreenGestureEnabled: true,
                       animation: Platform.select({
