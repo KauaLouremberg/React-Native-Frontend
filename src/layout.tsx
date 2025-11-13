@@ -10,6 +10,7 @@ import { Provider } from 'react-redux';
 import Configuracoes from './components/pages/Configuracoes';
 import Dashboard from './components/pages/Dashboard';
 import MapScreen from './components/pages/Dashboard/MapScreen';
+import Register from './components/pages/Dashboard/Register';
 import Login from './components/pages/login';
 import { TemplateWithChildren } from './components/TemplateComponent';
 import store from './store';
@@ -54,6 +55,19 @@ function App() {
                       fullScreenGestureEnabled: true,
                       animation: Platform.select({
                         ios: 'default',
+                        android: 'slide_from_left',
+                      }),
+                    }}
+                  />
+                  <Stack.Screen
+                    name="Register"
+                    component={Register}
+                    options={{
+                      headerShown: false,
+                      gestureEnabled: true,
+                      fullScreenGestureEnabled: true,
+                      animation: Platform.select({
+                        ios: 'default',
                         android: 'slide_from_right',
                       }),
                     }}
@@ -67,7 +81,7 @@ function App() {
                       fullScreenGestureEnabled: true,
                       animation: Platform.select({
                         ios: 'default',
-                        android: 'default',
+                        android: 'slide_from_left',
                       }),
                     }}
                   />
