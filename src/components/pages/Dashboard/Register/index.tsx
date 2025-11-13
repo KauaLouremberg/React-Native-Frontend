@@ -2,20 +2,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Globe, InfoIcon, User } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../core/constants/colors';
-import { useLoginRequestMutation } from '../../core/http/react-query/login';
-import { ActionButtonInteface } from '../../core/interface/action-button-interface';
-import { LoginValidationDto } from '../../core/models/dto/login-validation-dto';
-import { loginValidationSchema } from '../../core/models/validation-schemas/login-validation-schema';
-import { loginStyle } from '../../styles/login/login-style';
-import { ActionButton } from '../buttons/action-button';
-import { ButtonCore } from '../buttons/button-core';
-import { ToastNotify } from '../ElementosForm/Toast';
-import { Input } from '../input/input';
-import { Texto } from '../texto';
+import { ScrollView, View } from 'react-native';
+import { colors } from '../../../../core/constants/colors';
+import { useRegisterRequestMutation } from '../../../../core/http/react-query/register';
+import { ActionButtonInteface } from '../../../../core/interface/action-button-interface';
+import { RegisterValidationDto } from '../../../../core/models/dto/register-validation-dto';
+import { registerValidationSchema } from '../../../../core/models/validation-schemas/register-validation-schema';
+import { loginStyle } from '../../../../styles/login/login-style';
+import { ActionButton } from '../../../buttons/action-button';
+import { ButtonCore } from '../../../buttons/button-core';
+import { ToastNotify } from '../../../ElementosForm/Toast';
+import { Input } from '../../../input/input';
+import { Texto } from '../../../texto';
 
-export default function Login({ navigation }: any) {
+export default function Register({ navigation }: any) {
   const {
     section,
     wrapper,
@@ -23,11 +23,11 @@ export default function Login({ navigation }: any) {
     text,
     title,
     loginWrapper,
-    forgotPasswordText,
     buttonWrapper,
-    clickHereWrapper,
     actionButtonWrapper,
     justiceWrapper,
+    forgotPasswordText,
+    clickHereWrapper
   } = loginStyle;
 
   const {
@@ -35,35 +35,37 @@ export default function Login({ navigation }: any) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<LoginValidationDto>({
-    resolver: zodResolver(loginValidationSchema),
+  } = useForm<RegisterValidationDto>({
+    resolver: zodResolver(registerValidationSchema),
     defaultValues: {
+      email: '',
       username: '',
       password: '',
     },
   });
 
-  const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
+  const { registerRequestAsync, isRegisterRequesting } = useRegisterRequestMutation({
     onSuccess: () => {
       ToastNotify({
         type: 'success',
-        title: 'Login!',
-        message: 'Autenticação realizada!',
+        title: 'Registrado!',
+        message: 'Usuario Cadastrado!',
         time: 2500,
       });
       reset();
-      navigation.navigate('Dashboard');
+      navigation.navigate("Login")
+
     },
   });
 
-  async function onSubmit(data: LoginValidationDto) {
+  async function onSubmit(data: RegisterValidationDto) {
     try {
-      await loginRequestAsync({ data });
+      await registerRequestAsync({ data });
     } catch {
       ToastNotify({
         type: 'error',
         title: 'Erro!',
-        message: 'Ocorreu um erro ao efetuar a autenticação!',
+        message: 'Ocorreu um erro ao efetuar o Registro!',
         time: 2500,
       });
     }
@@ -98,10 +100,23 @@ export default function Login({ navigation }: any) {
           <Texto style={text}>Bem-vindo ao Amparo.</Texto>
           <InfoIcon color={colors.neutral[500]} size={16} />
         </View>
-        <Texto style={title}>Acesse sua conta aqui.</Texto>
+        <Texto style={title}>Registre sua conta aqui.</Texto>
       </View>
 
       <View style={loginWrapper}>
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { value, onChange } }) => (
+            <Input
+              value={value}
+              onChangeText={onChange}
+              label="Email"
+              placeholder="Email"
+              error={errors.email?.message}
+            />
+          )}
+        />
         <Controller
           control={control}
           name="username"
@@ -109,12 +124,13 @@ export default function Login({ navigation }: any) {
             <Input
               value={value}
               onChangeText={onChange}
-              label="Login"
-              placeholder="Login"
+              label="Username"
+              placeholder="Username"
               error={errors.username?.message}
             />
           )}
         />
+
         <Controller
           control={control}
           name="password"
@@ -130,25 +146,19 @@ export default function Login({ navigation }: any) {
           )}
         />
 
-        <TouchableOpacity activeOpacity={0.6}>
-          <Texto style={forgotPasswordText} align="right">
-            Esqueceu sua senha?
-          </Texto>
-        </TouchableOpacity>
-
         <View style={buttonWrapper}>
           <ButtonCore
             onPress={handleSubmit(onSubmit)}
-            disabled={isLoginRequesting}
+            disabled={isRegisterRequesting}
           >
-            Entrar
+            Registrar-se
           </ButtonCore>
         </View>
+      </View>
 
-        <View style={clickHereWrapper}>
-          <Texto>Ainda não possui uma conta? </Texto>
-          <Texto style={forgotPasswordText} onPress={() => navigation.navigate('Register')}>Toque aqui</Texto>
-        </View>
+      <View style={clickHereWrapper}>
+          <Texto>Ja possui uma conta? </Texto>
+          <Texto style={forgotPasswordText} onPress={() => navigation.navigate('Login')}>Toque aqui</Texto>
       </View>
 
       <View style={actionButtonWrapper}>
