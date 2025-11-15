@@ -1,5 +1,7 @@
+import 'react-native-reanimated';
+
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,33 +9,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Provider } from 'react-redux';
 
-import Configuracoes from './components/pages/Configuracoes';
-import Dashboard from './components/pages/Dashboard';
-import MapScreen from './components/pages/Dashboard/MapScreen';
 import Register from './components/pages/Dashboard/Register';
 import Login from './components/pages/login';
-import { TemplateWithChildren } from './components/TemplateComponent';
 import store from './store';
+
+import { MainTabs } from './components/CustomTabBar/MainTabs';
+import { directionTransition } from './components/TabNavigator/transition';
 import { gestureStyle } from './styles/gesture/gesture-style';
 import { keyboardStyle } from './styles/keyboard/keyboard-style';
 import { safeAreaStyle } from './styles/safe-area/safe-area-style';
 
-const withTemplate = (Component: React.ComponentType) => {
-  return (props: any) => (
-    <TemplateWithChildren navigation={props.navigation}>
-      <Component {...props} />
-    </TemplateWithChildren>
-  );
-};
+const Stack = createStackNavigator();
+
+export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'Configuracoes'];
 
 function App() {
-  const Stack = createNativeStackNavigator();
+  const queryClient = new QueryClient();
 
   const { keyboard: Keyboard } = keyboardStyle;
   const { safeArea: SafeArea } = safeAreaStyle;
   const { gesture: Gesture } = gestureStyle;
-
-  const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -45,75 +40,30 @@ function App() {
               behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
               <NavigationContainer>
-                <Stack.Navigator initialRouteName="Login">
+                <Stack.Navigator
+                  initialRouteName="Login"
+                  screenOptions={directionTransition(SCREEN_ORDER)}
+                >
                   <Stack.Screen
                     name="Login"
                     component={Login}
-                    options={{
-                      headerShown: false,
-                      gestureEnabled: true,
-                      fullScreenGestureEnabled: true,
-                      animation: Platform.select({
-                        ios: 'default',
-                        android: 'slide_from_left',
-                      }),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="Register"
-                    component={Register}
-                    options={{
-                      headerShown: false,
-                      gestureEnabled: true,
-                      fullScreenGestureEnabled: true,
-                      animation: Platform.select({
-                        ios: 'default',
-                        android: 'slide_from_right',
-                      }),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="Dashboard"
-                    component={withTemplate(Dashboard)}
-                    options={{
-                      headerShown: false,
-                      gestureEnabled: true,
-                      fullScreenGestureEnabled: true,
-                      animation: Platform.select({
-                        ios: 'default',
-                        android: 'slide_from_left',
-                      }),
-                    }}
-                  />
-                  <Stack.Screen
-                    name="Configuracoes"
-                    component={withTemplate(Configuracoes)}
-                    options={{
-                      headerShown: false,
-                      gestureEnabled: true,
-                      fullScreenGestureEnabled: true,
-                      animation: Platform.select({
-                        ios: 'default',
-                        android: 'slide_from_right',
-                      }),
-                    }}
+                    options={{ headerShown: false }}
                   />
 
                   <Stack.Screen
-                    name="Mapa"
-                    component={withTemplate(MapScreen)}
-                    options={{
-                      headerShown: false,
-                      gestureEnabled: true,
-                      fullScreenGestureEnabled: true,
-                      animation: Platform.select({
-                        ios: 'default',
-                        android: 'slide_from_right',
-                      }),
-                    }}
+                    name="Register"
+                    component={Register}
+                    options={{ headerShown: false }}
+                  />
+
+                  <Stack.Screen
+                    name="MainTabs"
+                    component={MainTabs}
+                    options={{ headerShown: false }}
                   />
                 </Stack.Navigator>
               </NavigationContainer>
+
               <Toast />
             </KeyboardAvoidingView>
           </SafeAreaView>
@@ -122,4 +72,5 @@ function App() {
     </QueryClientProvider>
   );
 }
+
 export default App;
