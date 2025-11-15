@@ -23,7 +23,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     api.get('user/')
-      .then((res) => onReceive(res.data));
+      .then((res) => {
+        onReceive(res.data);
+        console.log(res.data)
+      })
   }, []);
 
   return (

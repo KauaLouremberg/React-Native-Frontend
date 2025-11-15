@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -10,7 +11,7 @@ import { ToastNotify } from "../../ElementosForm/Toast";
 import { Input } from "../../input/input";
 import { Texto } from "../../texto";
 
-const Configuracoes = () => {
+const Configuracoes = ({ navigation }: any) => {
   const dispatch = useDispatch();
   const usuario = useSelector((state: any) => state.user.id);
   const [open, setOpen] = useState(false);
@@ -161,6 +162,12 @@ const Configuracoes = () => {
           top: 5
         }}
       />
+
+      <ButtonCore onPress={() => {
+        AsyncStorage.removeItem('accessToken');
+        navigation.navigate("Login")
+        }}>ir pra tela de login, teste</ButtonCore>
+      <ButtonCore onPress={() => navigation.navigate("Amparado-Register")}>Adicionar Amparado</ButtonCore>
     </View>
 
     <View style={{display: enderecoView ? 'flex' : 'none'}}>
