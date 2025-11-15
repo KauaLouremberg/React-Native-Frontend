@@ -1,4 +1,5 @@
-import { NavigationProp, useRoute } from '@react-navigation/native';
+import { CommonActions, useRoute } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import {
   BookMarked,
   Home,
@@ -19,10 +20,21 @@ type FooterType = {
 
 interface TemplateWithChildrenProp {
   children: React.ReactNode;
-  navigation: NavigationProp<any>;
+  navigation: StackNavigationProp<any>;
 }
 
 const { wrapper, footer, touchable } = TemplateWithChildrenStyle;
+
+function navigateWithTransition(navigation: StackNavigationProp<any>, target: string, current: string) {
+  if (target === current) return;
+
+  navigation.dispatch(
+    CommonActions.navigate({
+      name: target,
+      key: `${target}-${Date.now()}`,
+    } as any),
+  );
+}
 
 export function TemplateWithChildren({
   children,
@@ -35,12 +47,12 @@ export function TemplateWithChildren({
       {
         icon: Home,
         route: 'Dashboard',
-        fn: () => navigation.navigate('Dashboard' as never),
+        fn: () => navigateWithTransition(navigation, 'Dashboard', route.name),
       },
       {
         icon: MapPin,
         route: 'Mapa',
-        fn: () => navigation.navigate('Mapa' as never),
+        fn: () => navigateWithTransition(navigation, 'Mapa', route.name),
       },
       {
         icon: BookMarked,
@@ -50,19 +62,21 @@ export function TemplateWithChildren({
       {
         icon: Settings,
         route: 'Configuracoes',
-        fn: () => navigation.navigate('Configuracoes' as never),
+        fn: () => navigateWithTransition(navigation, 'Configuracoes', route.name),
       },
     ],
-    [navigation],
+    [navigation, route.name],
   );
 
   return (
     <View style={wrapper}>
       <View style={TemplateWithChildrenStyle.content}>{children}</View>
+
       <View>
         <View style={footer}>
           {FOOTER_MAP.map(({ icon: Icon, fn, route: routeName }, idx) => {
             const isActive = route.name === routeName;
+
             return (
               <TouchableOpacity key={idx} style={touchable} onPress={fn}>
                 <View>

@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:@react-native/babel-preset'],
+  presets: ['@react-native/babel-preset'],
   plugins: [
     [
       'module:react-native-dotenv',
@@ -10,5 +10,6 @@ module.exports = {
       },
     ],
     '@babel/plugin-proposal-export-namespace-from',
+    'react-native-reanimated/plugin',
   ],
 };

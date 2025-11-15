@@ -52,7 +52,7 @@ export default function Login({ navigation }: any) {
         time: 2500,
       });
       reset();
-      navigation.navigate('Dashboard');
+      navigation.replace("MainTabs");
     },
   });
 
