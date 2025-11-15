@@ -10,7 +10,7 @@ export async function registerRequest(data: LoginValidationDto) {
 
     return result.data;
   } catch (error: any) {
-    console.error('Erro ao fazer login:', error);
+    console.error('Erro ao fazer registro:', error);
     throw error;
   }
 }

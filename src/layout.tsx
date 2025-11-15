@@ -14,6 +14,7 @@ import Login from './components/pages/login';
 import store from './store';
 
 import { MainTabs } from './components/CustomTabBar/MainTabs';
+import Amparado from './components/pages/Amparado';
 import { directionTransition } from './components/TabNavigator/transition';
 import { gestureStyle } from './styles/gesture/gesture-style';
 import { keyboardStyle } from './styles/keyboard/keyboard-style';
@@ -56,6 +57,12 @@ function App() {
                     options={{ headerShown: false }}
                   />
 
+                  <Stack.Screen
+                    name="Amparado-Register"
+                    component={Amparado}
+                    options={{ headerShown: false}}
+                  />
+                  
                   <Stack.Screen
                     name="MainTabs"
                     component={MainTabs}
