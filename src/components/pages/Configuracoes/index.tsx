@@ -1,5 +1,4 @@
 /* eslint-disable react-native/no-inline-styles */
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -110,18 +109,13 @@ const Configuracoes = ({ navigation }: any) => {
             key: 'perfil',
             title: 'Perfil',
             render: () => (
-              <View style={{ width: 250, top: 50, left: 20 }}>
-                <Texto style={{ left: 0, top: -20, fontSize: 32, height: 50 }}>
-                  PERFIL
-                </Texto>
-
-                {/* Usei esses inputs, mas tem que criar outro pra uso como esses tbm, sem ser o de login */}
-
+              <View style={{ paddingHorizontal: 24, height: '100%' }}>
                 <Input
                   label="CPF"
+                  variant="form"
+                  placeholder="CPF"
                   value={form.cpf}
                   onChangeText={e => handleChange('cpf', e)}
-                  style={{ height: 40, borderRadius: 5 }}
                 />
 
                 <DateTimePickerComponent
@@ -130,10 +124,11 @@ const Configuracoes = ({ navigation }: any) => {
                   onChange={setDataNascimento}
                 />
 
-                {/* Alterar para dropdownPicker */}
                 <Input
                   label="Sexo"
+                  placeholder="Sexo"
                   value={form.sexo}
+                  variant="form"
                   onChangeText={e => handleChange('sexo', e)}
                   style={{ height: 40, borderRadius: 5 }}
                 />
@@ -156,14 +151,6 @@ const Configuracoes = ({ navigation }: any) => {
                   }}
                 />
 
-                <ButtonCore
-                  onPress={() => {
-                    AsyncStorage.removeItem('accessToken');
-                    navigation.navigate('Login');
-                  }}
-                >
-                  ir pra tela de login, teste
-                </ButtonCore>
                 <ButtonCore
                   onPress={() => navigation.navigate('Amparado-Register')}
                 >
