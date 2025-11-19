@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react-native';
 import React, { Fragment, useState } from 'react';
 import {
   Keyboard,
+  Platform,
   TextInput,
   TextInputProps,
   TouchableOpacity,
@@ -18,6 +19,7 @@ export interface InputInterface extends TextInputProps {
   placeholder?: string;
   isPassword?: boolean;
   error?: string;
+  variant?: 'form' | 'small' | string;
 }
 
 export function Input({
@@ -26,6 +28,7 @@ export function Input({
   style,
   isPassword = false,
   error,
+  variant,
   ...rest
 }: InputInterface) {
   const {
@@ -50,7 +53,12 @@ export function Input({
           <View style={textContainer}>
             <TextInput
               selectionColor={colors.primaryLight}
-              style={[input, isFocused ? inputFocused : '', style]}
+              style={[
+                input,
+                isFocused ? inputFocused : null,
+                variant ? (inputStyle as any)[variant] : null,
+                style,
+              ]}
               {...rest}
               placeholder={placeholder}
               placeholderTextColor={colors.neutral[500]}
@@ -62,6 +70,15 @@ export function Input({
               secureTextEntry={isPassword && !showPassword}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
+              {...(Platform.OS === 'android'
+                ? {
+                    includeFontPadding: false,
+                    allowFontScaling: false,
+                  }
+                : {
+                    allowFontScaling: false,
+                  })}
+              {...rest}
             />
 
             {isPassword && (
