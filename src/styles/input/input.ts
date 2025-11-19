@@ -27,6 +27,18 @@ export const inputStyle = StyleSheet.create({
     fontFamily: POPPINS.regular,
     color: colors.neutral[500],
   },
+
+  form: {
+    height: 40,
+    borderRadius: 5,
+  },
+
+  small: {
+    height: 40,
+    borderRadius: 8,
+    paddingLeft: 12,
+    paddingRight: 36,
+  },
   inputFocused: {
     borderColor: colors.primaryLight,
   },

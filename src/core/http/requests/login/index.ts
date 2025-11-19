@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../../../../components/conexao/api';
+import { registerDevice } from '../../../../notifications/fcm';
 import { LoginValidationDto } from '../../../models/dto/login-validation-dto';
 
 export async function loginRequest(data: LoginValidationDto) {
@@ -10,6 +11,8 @@ export async function loginRequest(data: LoginValidationDto) {
 
     await AsyncStorage.setItem('accessToken', access);
     await AsyncStorage.setItem('refreshToken', refresh);
+    
+    await registerDevice();
 
     return result.data;
   } catch (error: any) {
