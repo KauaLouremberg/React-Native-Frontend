@@ -25,7 +25,9 @@ export default function Dashboard() {
     api.get('user/')
       .then((res) => {
         onReceive(res.data);
-        console.log(res.data)
+        setTimeout(() => {
+        // enviarNotificacao(8); Exemplo de Uso para notificacao, 8 = id do usuario que vai receber a notificacao
+      }, 5000);
       })
   }, []);
 

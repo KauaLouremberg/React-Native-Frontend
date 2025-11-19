@@ -13,6 +13,8 @@ import Register from './components/pages/Dashboard/Register';
 import Login from './components/pages/login';
 import store from './store';
 
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import { useEffect } from 'react';
 import { MainTabs } from './components/CustomTabBar/MainTabs';
 import Amparado from './components/pages/Amparado';
 import { directionTransition } from './components/TabNavigator/transition';
@@ -30,6 +32,19 @@ function App() {
   const { keyboard: Keyboard } = keyboardStyle;
   const { safeArea: SafeArea } = safeAreaStyle;
   const { gesture: Gesture } = gestureStyle;
+
+  async function configureNotificationChannel() {
+    await notifee.createChannel({
+      id: 'amparo_channel',
+      name: 'Amparo',
+      importance: AndroidImportance.HIGH,
+      sound: 'default',
+    });
+  }
+
+  useEffect(() => {
+    configureNotificationChannel();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
