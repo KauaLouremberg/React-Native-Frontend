@@ -1,6 +1,20 @@
+def localProperties = new Properties()
+def localPropertiesFile = new File(rootProject.projectDir, "local.properties")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader { reader ->
+        localProperties.load(reader)
+    }
+}
+
+
+def API_URL = localProperties.getProperty("API_URL")
+
+
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+
 
 react {
     autolinkLibrariesWithApp()
@@ -21,8 +35,10 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-
-        manifestPlaceholders = [ MAPS_API_KEY: project.findProperty("MAPS_API_KEY") ?: "" ]
+        buildConfigField "String", "API_URL", "\"${API_URL}\""
+        manifestPlaceholders = [
+            MAPS_API_KEY: localProperties.getProperty("MAPS_API_KEY")
+        ]
     }
 
     lintOptions {
@@ -71,6 +87,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-basement:18.5.0'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation "com.squareup.okhttp3:okhttp:4.10.0"
+
 
 
     if (hermesEnabled.toBoolean()) {
