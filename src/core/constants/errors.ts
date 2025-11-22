@@ -1,6 +1,7 @@
 export const ERRORS = {
   required_field: 'Preencha este campo',
   field_max_length: 'O campo deve conter no máximo {max} caracteres',
+  field_min_length: 'O campo deve conter no minimo {min} caracteres',
   invalid_email: 'E-mail inválido',
   invalid_password: 'Senha inválida',
   invalid_cpf: 'CPF inválido',

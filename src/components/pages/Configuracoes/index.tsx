@@ -1,11 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
-import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useSelector } from 'react-redux';
+import { useConfigRequestMutation } from '../../../core/http/react-query/configuracao';
+import { perfilRequest } from '../../../core/http/requests/configuracao';
+import { ConfigValidationDto } from '../../../core/models/dto/config-validation-dto';
+import { configValidationSchema } from '../../../core/models/validation-schemas/config-validation-schema';
 import { ButtonCore } from '../../buttons/button-core';
 import FloatButton from '../../buttons/float-button';
-import api from '../../conexao/api';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
 import { ToastNotify } from '../../ElementosForm/Toast';
 import { HeaderNavigation } from '../../headerNavigation/header-navigation';
@@ -13,88 +19,74 @@ import { Input } from '../../input/input';
 import { Texto } from '../../texto';
 
 const Configuracoes = ({ navigation }: any) => {
-  const usuario = useSelector((state: any) => state.user.id);
-  const [open, setOpen] = useState(false);
+  const usuario = useSelector((state: any) => state.user);
   const [value, setValue] = useState(null);
   const [activeTab, setActiveTab] = useState<'perfil' | 'endereco'>('perfil');
-  const [dataNascimento, setDataNascimento] = useState<Date | null>(null);
-  const [form, setForm] = useState({
-    cpf: '',
-    usuario: usuario,
-    sexo: '',
-    tipo_conta: '',
-  });
+  const [open, setOpen] = useState(false);
 
-  const [tipoConta, setTipoConta] = useState([
-    { label: 'Responsavel', value: 'A' },
-    { label: 'Usuario', value: 'U' },
-  ]);
+  const [itens, setItens] = useState<string | any>([
+    {label: 'Masculino', value: 'M'},
+    {label: 'Feminino', value: 'F'}]  
+  );
+
+  const { isLoading, isFetching, data, isSuccess, isError } = useQuery({
+    queryKey: ['config', usuario.id],
+    enabled: !!usuario.id,
+    queryFn: () => perfilRequest(),
+    gcTime: 5 * 60 * 1000,
+    staleTime: Infinity
+  })
+
+  const {
+      control,
+      handleSubmit,
+      reset,
+      formState: { errors },
+    } = useForm<ConfigValidationDto>({
+      resolver: zodResolver(configValidationSchema),
+      defaultValues: {
+        cpf: '',
+        tipo_conta: usuario && usuario.is_amparado ? "U" : "A",
+        sexo: '',
+        data_nascimento: new Date() as any,
+      },
+    });
 
   useEffect(() => {
-    async function LoadData() {
-      try {
-        const response = await api.get('perfil/');
-        const data = response.data;
-
-        console.log(data);
-
-        setForm({
-          cpf: data.cpf,
-          usuario: data.usuario,
-          sexo: data.sexo,
-          tipo_conta: data.tipo_conta,
-        });
-        setValue(data.tipo_conta);
-        setDataNascimento(
-          data.data_nascimento ? new Date(data.data_nascimento) : null,
-        );
-      } catch {
-        ToastNotify({
-          type: 'error',
-          title: 'Erro!',
-          message: 'Ocorreu um erro ao tentar carregar suas informacoes!',
-        });
-      }
+    if (data) {
+      reset({
+        cpf: data.cpf,
+        tipo_conta: usuario && usuario.is_amparado ? "U" : "A",
+        sexo: data.sexo,
+        data_nascimento: new Date(data.data_nascimento) as any
+      })
     }
+  }, [reset, data])
 
-    LoadData();
-  }, []);
-
-  const handleChange = (field: string, val: any) => {
-    setForm(prev => ({ ...prev, [field]: val }));
-  };
-
-  const onFinishPerfil = async () => {
-    let payload = {
-      params: {
-        cpf: form.cpf,
-        usuario: usuario,
-        sexo: form.sexo,
-        tipo_conta: value,
-        data_nascimento: dataNascimento,
-      },
-    };
-
-    try {
-      const response = await api.post('perfil/', {
-        payload,
-      });
-
-      if (response) {
+  const { configRequestAsync, isConfigRequesting } = useConfigRequestMutation({
+      onSuccess: () => {
         ToastNotify({
           type: 'success',
           title: 'Sucesso!',
           message: 'Suas informacoes foram enviadas com sucesso!',
         });
+      },
+    });
+  
+    async function onSubmit(data: ConfigValidationDto) {
+      try {
+        console.log('bateu aqui')
+        await configRequestAsync({ data });
+      } catch {
+        ToastNotify({
+          type: 'error',
+          title: 'Erro!',
+          message: 'Ocorreu um erro ao enviar os dados!',
+          time: 2500,
+        });
+        console.log('bateu aqui')
       }
-    } catch {
-      ToastNotify({
-        type: 'error',
-        title: 'Erro!',
-        message: 'Ocorreu um erro ao enviar os dados!',
-      });
     }
-  };
 
   return (
     <>
@@ -110,46 +102,62 @@ const Configuracoes = ({ navigation }: any) => {
             title: 'Perfil',
             render: () => (
               <View style={{ paddingHorizontal: 24, height: '100%' }}>
-                <Input
-                  label="CPF"
-                  variant="form"
-                  placeholder="CPF"
-                  value={form.cpf}
-                  onChangeText={e => handleChange('cpf', e)}
+                <Controller
+                  control={control}
+                  name='cpf'
+                  render={({ field: { value, onChange } }) => (
+                    <Input
+                      label="CPF"
+                      variant="form"
+                      inputMode={'numeric'}
+                      placeholder="CPF"
+                      maxLength={11}
+                      value={value}
+                      onChangeText={onChange}
+                      error={errors.cpf?.message}
+                />
+                  )}
+                />
+                
+                <Controller
+                  control={control}
+                  name='data_nascimento'
+                  render={({ field: { value, onChange} }) => (
+                    <DateTimePickerComponent
+                      label="Data de nascimento"
+                      value={value as any}
+                      onChange={onChange}
+                    />
+                  )}
                 />
 
-                <DateTimePickerComponent
-                  label="Data de nascimento"
-                  value={dataNascimento}
-                  onChange={setDataNascimento}
-                />
+                <Controller
+                control={control}
+                name='sexo'
+                render={({ field: { value, onChange} }) => (
+                  <DropDownPicker
+                    open={open}
+                    value={value}
+                    items={itens}
+                    setOpen={setOpen}
+                    setValue={setValue}
+                    onChangeValue={onChange}
+                    setItems={setItens}
+                    placeholder="Selecione o Sexo"
+                    style={{
+                      borderColor: '#ccc',
+                      borderWidth: 1,
+                      borderRadius: 8,
+                      top: 5,
+                    }}
+                  />
+                )}
+              />
 
-                <Input
-                  label="Sexo"
-                  placeholder="Sexo"
-                  value={form.sexo}
-                  variant="form"
-                  onChangeText={e => handleChange('sexo', e)}
-                  style={{ height: 40, borderRadius: 5 }}
-                />
+              <Texto>{JSON.stringify(errors)}</Texto>
 
+                
                 {/* Componente pra esse infame tbm */}
-                <Texto>Tipo de Conta</Texto>
-                <DropDownPicker
-                  open={open}
-                  value={value}
-                  items={tipoConta}
-                  setOpen={setOpen}
-                  setValue={setValue}
-                  setItems={setTipoConta}
-                  placeholder="Selecione o Tipo de Conta"
-                  style={{
-                    borderColor: '#ccc',
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    top: 5,
-                  }}
-                />
 
                 <ButtonCore
                   onPress={() => navigation.navigate('Amparado-Register')}
@@ -173,8 +181,9 @@ const Configuracoes = ({ navigation }: any) => {
 
       {activeTab === 'perfil' && (
         <FloatButton
-          onPress={() => onFinishPerfil()}
+          onPress={handleSubmit(onSubmit)}
           title="Enviar"
+          type='submit'
           position={'bottom'}
           style={{ width: 100, left: 150 }}
         />

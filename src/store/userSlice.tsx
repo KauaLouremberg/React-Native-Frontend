@@ -3,7 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   id: null,
   nome: '',
-  perfil: '',
+  is_amparado: false,
+  token: null
 };
 
 const userSlice = createSlice({
@@ -11,15 +12,17 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      const { id, nome, perfil } = action.payload;
+      const { id, nome, is_amparado, token } = action.payload;
       state.id = id;
       state.nome = nome;
-      state.perfil = perfil;
+      state.token = token;
+      state.is_amparado = is_amparado
     },
     clearUser: (state) => {
       state.id = null;
       state.nome = '';
-      state.perfil = '';
+      state.token = null;
+      state.is_amparado = false;
     },
   },
 });

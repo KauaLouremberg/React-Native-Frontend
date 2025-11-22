@@ -2,8 +2,7 @@ import { MapPin, Minimize } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Alert, Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import MapView, { Marker } from 'react-native-maps';
-import { useSelector } from 'react-redux';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
 import { ToastNotify } from '../../../ElementosForm/Toast';
@@ -15,7 +14,6 @@ export default function MapScreen() {
   const [showMap, setShowMap] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const mapRef = useRef<any>(null);
-  const user = useSelector((state: any) => state.user);
 
   const initLocation = async () => {
     const ok = await requestLocationPermission();
@@ -76,7 +74,6 @@ export default function MapScreen() {
     <View style={styles.container}>
       {!showMap ? (
         <ButtonCore 
-          disabled={user.perfil === "usuario" ? false : true} 
           onPress={handleShowMap} 
           style={
             {
@@ -89,12 +86,12 @@ export default function MapScreen() {
         </ButtonCore>
       ) : (
         <>
-          {region && (
+          {region ? (
             <MapView
-              ref={mapRef}
+              provider={PROVIDER_GOOGLE}
+              region={region}
+              onRegionChange={() => {}}
               style={isFullScreen ? styles.mapFull : styles.mapSmall}
-              initialRegion={region}
-              onPress={handleMapPress}
               showsUserLocation={true}
               showsMyLocationButton={false}
             >
@@ -108,7 +105,7 @@ export default function MapScreen() {
                 />
               )}
             </MapView>
-          )}
+          ) : ''}
 
           {isFullScreen ? (
             <TouchableOpacity
