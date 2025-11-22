@@ -20,7 +20,21 @@ export interface InputInterface extends TextInputProps {
   isPassword?: boolean;
   error?: string;
   variant?: 'form' | 'small' | string;
+  maxLength?: number;
+  inputMode?: 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url' |  any;
 }
+
+/**
+ * @Params
+ * 
+ * @String Label => Titulo acima do input
+ * @String PlaceHolder => Valor de dentro do input
+ * @Boolean isPassword => Alternar modo do input para senha
+ * @String error => Mensagem de erro abaixo do input
+ * @String variant => form | small
+ * @String maxLength => Quantidade maxima de caracteres
+ * @String inputMode => Modes do input (text | decimal | numeric | tel | search | email | url) 
+ */
 
 export function Input({
   label,
@@ -29,6 +43,8 @@ export function Input({
   isPassword = false,
   error,
   variant,
+  maxLength,
+  inputMode,
   ...rest
 }: InputInterface) {
   const {
@@ -64,6 +80,8 @@ export function Input({
               placeholderTextColor={colors.neutral[500]}
               autoCorrect={false}
               spellCheck={false}
+              inputMode={inputMode ? inputMode : 'text'}
+              maxLength={maxLength ? maxLength : 255}
               underlineColorAndroid="transparent"
               autoComplete="off"
               importantForAutofill="no"

@@ -14,6 +14,7 @@ export function getErrorLabel(errorType: ErrorTypes, params?: Params) {
     ['required_field', ERRORS.required_field],
     ['field_max_length', ERRORS.field_max_length],
     ['invalid_date', ERRORS.invalid_date],
+    ['field_min_length', ERRORS.field_min_length]
   ]);
 
   let errorLabel = errorMapper.get(errorType) || '';
