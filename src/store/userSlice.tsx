@@ -4,7 +4,7 @@ const initialState = {
   id: null,
   nome: '',
   is_amparado: false,
-  token: null
+  token: null,
 };
 
 const userSlice = createSlice({

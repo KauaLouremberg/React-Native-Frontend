@@ -75,7 +75,6 @@ export function Input({
                 variant ? (inputStyle as any)[variant] : null,
                 style,
               ]}
-              {...rest}
               placeholder={placeholder}
               placeholderTextColor={colors.neutral[500]}
               autoCorrect={false}

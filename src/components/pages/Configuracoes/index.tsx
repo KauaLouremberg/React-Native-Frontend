@@ -86,28 +86,28 @@ const Configuracoes = ({ navigation }: any) => {
   useEffect(() => {
     if (data) {
       reset({
-        cpf: data.cpf,
-        apelido: data.apelido,
+        cpf: data.cpf ?? '',
+        apelido: data.apelido ?? '',
         tipo_conta: usuario && usuario.is_amparado ? "U" : "A",
-        sexo: data.sexo,
-        data_nascimento: new Date(data.data_nascimento)
+        sexo: data.sexo ?? '',
+        data_nascimento: new Date(data.data_nascimento ?? '')
       })
     }
-  }, [data])
+  }, [data, reset])
 
   useEffect(() => {
     if (enderecoData) {
       console.log('enderecoData', enderecoData)
       enderecoReset({
-        estado: enderecoData.estado,
-        cidade: enderecoData.cidade,
-        cep: enderecoData.cep,
-        bairro: enderecoData.bairro,
-        rua: enderecoData.rua,
-        numero: enderecoData.numero,
-      });
+      estado: enderecoData.estado ?? '', 
+      cidade: enderecoData.cidade ?? '',
+      cep: enderecoData.cep ?? '',
+      bairro: enderecoData.bairro ?? '',
+      rua: enderecoData.rua ?? '',
+      numero: enderecoData.numero ?? '',
+    });
     }
-  }, [enderecoData])
+  }, [enderecoData, enderecoReset])
 
   const { configRequestAsync } = useConfigRequestMutation({
       onSuccess: () => {
@@ -159,6 +159,195 @@ const Configuracoes = ({ navigation }: any) => {
     }
   }
 
+  const FormularioPerfilContent = ({ control, errors, isLoading }: any) => {
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", top: 325 }}>
+        <SpinningIcon color={colors.primary} size={40}/>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ paddingHorizontal: 24, height: '100%' }}>
+      <Controller
+        control={control}
+        name='cpf'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="CPF"
+            variant="form"
+            inputMode={'numeric'}
+            placeholder="CPF"
+            maxLength={11}
+            value={value}
+            onChangeText={onChange}
+            error={errors.cpf?.message}
+      />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name='apelido'
+        render={({ field: { value, onChange } }) => (
+          
+          <Input
+            label="Apelido"
+            variant="form"
+            inputMode={'text'}
+            placeholder="Apelido"
+            maxLength={255}
+            value={value}
+            onChangeText={onChange}
+            error={errors.apelido?.message}
+      />
+        )}
+      />
+      
+      <Controller
+        control={control}
+        name='data_nascimento'
+        render={({ field: { value, onChange} }) => (
+          <DateTimePickerComponent
+            label="Data de nascimento"
+            value={value as any}
+            onChange={onChange}
+          />
+        )}
+      />
+
+      <Controller
+      control={control}
+      name='sexo'
+      render={({ field: { value, onChange} }) => (
+        <DropDownPicker
+          open={open}
+          value={value}
+          items={itens}
+          setOpen={setOpen}
+          setValue={setValue}
+          onChangeValue={onChange}
+          setItems={setItens}
+          placeholder="Selecione o Sexo"
+          style={{
+            borderColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            top: 5,
+          }}
+        />
+      )}
+    />
+    </View>
+  );
+};
+
+  const FormularioEnderecoContent = ({ control, errors, isLoading }: any) => {
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", top: 325 }}>
+        <SpinningIcon color={colors.primary} size={40}/>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ paddingHorizontal: 24, height: '100%' }}>
+      <Controller
+        control={control}
+        name='estado'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Estado"
+            variant="form"
+            maxLength={255}
+            value={value ?? ''} 
+            onChangeText={onChange}
+            error={errors.estado?.message}
+          />
+        )}
+      />
+
+      <Controller
+        control={enderecoControl}
+        name='cidade'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Cidade"
+            variant="form"
+            maxLength={255}
+            value={value}
+            onChangeText={onChange}
+            error={enderecoErrors.cidade?.message}
+      />
+        )}
+      />
+      
+      <Controller
+        control={enderecoControl}
+        name='cep'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Cep"
+            variant="form"
+            inputMode={'numeric'}
+            maxLength={9}
+            value={value}
+            onChangeText={onChange}
+            error={enderecoErrors.cep?.message}
+      />
+        )}
+      />
+
+      <Controller
+        control={enderecoControl}
+        name='bairro'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Bairro"
+            variant="form"
+            maxLength={255}
+            value={value}
+            onChangeText={onChange}
+            error={enderecoErrors.bairro?.message}
+      />
+        )}
+      />
+
+      <Controller
+        control={enderecoControl}
+        name='rua'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Rua"
+            variant="form"
+            maxLength={255}
+            value={value}
+            onChangeText={onChange}
+            error={enderecoErrors.rua?.message}
+      />
+        )}
+      />
+
+      <Controller
+        control={enderecoControl}
+        name='numero'
+        render={({ field: { value, onChange } }) => (
+          <Input
+            label="Numero"
+            variant="form"
+            maxLength={20}
+            value={value}
+            onChangeText={onChange}
+            error={enderecoErrors.numero?.message}
+      />
+        )}
+      />
+    </View>
+  );
+};
+
   return (
     <>
       <HeaderNavigation
@@ -172,218 +361,44 @@ const Configuracoes = ({ navigation }: any) => {
             key: 'perfil',
             title: 'Perfil',
             render: () => (
-              isLoading || isFetching ? (
-              <View style={{ flex: 1, justifyContent: "center", alignItems: "center", top: 325 }}>
-                <SpinningIcon color={colors.primary} size={40}/>
-              </View>
-              ) : 
-              (
-                <View style={{ paddingHorizontal: 24, height: '100%' }}>
-                <Controller
-                  control={control}
-                  name='cpf'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="CPF"
-                      variant="form"
-                      inputMode={'numeric'}
-                      placeholder="CPF"
-                      maxLength={11}
-                      value={value}
-                      onChangeText={onChange}
-                      error={errors.cpf?.message}
-                />
-                  )}
-                />
-
-                <Controller
-                  control={control}
-                  name='apelido'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Apelido"
-                      variant="form"
-                      inputMode={'text'}
-                      placeholder="Apelido"
-                      maxLength={255}
-                      value={value}
-                      onChangeText={onChange}
-                      error={errors.apelido?.message}
-                />
-                  )}
-                />
-                
-                <Controller
-                  control={control}
-                  name='data_nascimento'
-                  render={({ field: { value, onChange} }) => (
-                    <DateTimePickerComponent
-                      label="Data de nascimento"
-                      value={value as any}
-                      onChange={onChange}
-                    />
-                  )}
-                />
-
-                <Controller
-                control={control}
-                name='sexo'
-                render={({ field: { value, onChange} }) => (
-                  <DropDownPicker
-                    open={open}
-                    value={value}
-                    items={itens}
-                    setOpen={setOpen}
-                    setValue={setValue}
-                    onChangeValue={onChange}
-                    setItems={setItens}
-                    placeholder="Selecione o Sexo"
-                    style={{
-                      borderColor: '#ccc',
-                      borderWidth: 1,
-                      borderRadius: 8,
-                      top: 5,
-                    }}
-                  />
-                )}
+              <FormularioPerfilContent 
+                control={control} 
+                errors={errors} 
+                isLoading={isLoading || isFetching}
               />
-                {/* Componente pra esse infame tbm */}
-
-                <ButtonCore
-                  onPress={() => navigation.navigate('Amparado-Register')}
-                >
-                  Adicionar Amparado
-                </ButtonCore>
-              </View>
-              ) 
-              
             ),
           },
           {
             key: 'endereco',
             title: 'Endereco',
             render: () => (
-              enderecoIsLoading || enderecoIsFetching ? (
-              <View style={{ flex: 1, justifyContent: "center", alignItems: "center", top: 325 }}>
-                <SpinningIcon color={colors.primary} size={40}/>
-              </View>
-              ) : 
-              (
-                <View style={{ paddingHorizontal: 24, height: '100%' }}>
-                <Controller
-                  control={enderecoControl}
-                  name='estado'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Estado"
-                      variant="form"
-                      maxLength={255}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.estado?.message}
-                />
-                  )}
-                />
-
-                <Controller
-                  control={enderecoControl}
-                  name='cidade'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Cidade"
-                      variant="form"
-                      maxLength={255}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.cidade?.message}
-                />
-                  )}
-                />
-                
-                <Controller
-                  control={enderecoControl}
-                  name='cep'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Cep"
-                      variant="form"
-                      inputMode={'numeric'}
-                      maxLength={9}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.cep?.message}
-                />
-                  )}
-                />
-
-                <Controller
-                  control={enderecoControl}
-                  name='bairro'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Bairro"
-                      variant="form"
-                      maxLength={255}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.bairro?.message}
-                />
-                  )}
-                />
-
-                <Controller
-                  control={enderecoControl}
-                  name='rua'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Rua"
-                      variant="form"
-                      maxLength={255}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.rua?.message}
-                />
-                  )}
-                />
-
-                <Controller
-                  control={enderecoControl}
-                  name='numero'
-                  render={({ field: { value, onChange } }) => (
-                    <Input
-                      label="Numero"
-                      variant="form"
-                      maxLength={20}
-                      value={value}
-                      onChangeText={onChange}
-                      error={enderecoErrors.numero?.message}
-                />
-                  )}
-                />
-                {/* Componente pra esse infame tbm */}
-                
-
-                <ButtonCore
-                  onPress={() => navigation.navigate('Amparado-Register')}
-                >
-                  Adicionar Amparado
-                </ButtonCore>
-              </View>
-              ) 
-              
+              <FormularioEnderecoContent 
+                control={enderecoControl} 
+                errors={enderecoErrors} 
+                isLoading={enderecoIsLoading || enderecoIsFetching}
+              />
             ),
           },
         ]}
       />
 
+      <ButtonCore
+        style={{top: -300}}
+        onPress={() => navigation.navigate('Amparado-Register')}
+      >
+        Adicionar Amparado
+      </ButtonCore>
+
       {activeTab && (
-        <FloatButton
-          onPress={activeTab !== 'endereco' ? handleSubmit(onSubmit) : enderecoHandleSubmit(onSubmitEndereco)}
-          title="Salvar"
-          type='submit'
-          position={'bottom'}
-          style={{ width: 100, left: 150 }}
-        />
+          
+          <FloatButton
+            onPress={activeTab !== 'endereco' ? handleSubmit(onSubmit) : enderecoHandleSubmit(onSubmitEndereco)}
+            title="Salvar"
+            type='submit'
+            position={'bottom'}
+            style={{ width: 100, left: 150 }}
+          />
+        
       )}
     </>
   );
