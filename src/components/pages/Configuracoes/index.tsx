@@ -13,7 +13,6 @@ import { ConfigValidationDto } from '../../../core/models/dto/config-validation-
 import { EnderecoValidationDto } from '../../../core/models/dto/endereco-validation-dto';
 import { configValidationSchema } from '../../../core/models/validation-schemas/config-validation-schema';
 import { enderecoValidationSchema } from '../../../core/models/validation-schemas/endereco-validation-schema';
-import { ButtonCore } from '../../buttons/button-core';
 import FloatButton from '../../buttons/float-button';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
 import SpinningIcon from '../../ElementosForm/SpinningIcon';
@@ -374,13 +373,6 @@ const Configuracoes = ({ navigation }: any) => {
           },
         ]}
       />
-
-      <ButtonCore
-        style={{top: -300}}
-        onPress={() => navigation.navigate('Amparado-Register')}
-      >
-        Adicionar Amparado
-      </ButtonCore>
 
       {activeTab && (
           
