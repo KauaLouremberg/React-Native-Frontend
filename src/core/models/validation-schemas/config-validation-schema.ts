@@ -9,6 +9,8 @@ export const configValidationSchema = z.object({
       11,
       getErrorLabel('field_max_length', { replacements: { max: '11' } }),
     ),
+  apelido: z
+    .string().optional(),
   tipo_conta: z
     .string()
     .min(1, getErrorLabel('required_field')),

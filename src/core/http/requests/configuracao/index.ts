@@ -1,5 +1,6 @@
 import api from '../../../../components/conexao/api';
 import { ConfigValidationDto } from '../../../models/dto/config-validation-dto';
+import { EnderecoValidationDto } from '../../../models/dto/endereco-validation-dto';
 
 export async function perfilRequest() {
   try {
@@ -23,3 +24,28 @@ export async function configRequest(data: ConfigValidationDto) {
     throw error;
   }
 }
+
+export async function enderecoRequest() {
+  
+  try {
+    const result = await api.get('endereco/');
+
+    return result.data;
+  } catch (error: any) {
+    console.error('Erro ao fazer requisicao:', error);
+    throw error;
+  }
+}
+
+export async function enderecoPRequest(data: EnderecoValidationDto) {
+  
+  try {
+    const result = await api.post('endereco/', data);
+
+    return result.data;
+  } catch (error: any) {
+    console.error('Erro ao fazer requisicao:', error);
+    throw error;
+  }
+}
+
