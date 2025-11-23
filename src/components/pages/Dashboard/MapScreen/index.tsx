@@ -1,19 +1,73 @@
 import { MapPin, Minimize } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useSelector } from 'react-redux';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
 import { ToastNotify } from '../../../ElementosForm/Toast';
 import { requestLocationPermission } from '../../../PermissionComponent';
 
 export default function MapScreen() {
+  const [coordenadas, setCoordenadas] = useState<any>(null);
   const [region, setRegion] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [showMap, setShowMap] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const mapRef = useRef<any>(null);
+  const userType = useSelector((state: any) => state.userType);
+  const user = useSelector((state: any) => state.user);
+
+  const ws = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    if (!userType.responsavel_id || user.is_amparado !== false) return;
+
+    const socketUrl = `ws://react-native-backend-sfc1.onrender.com/ws/localizacao/${userType.responsavel_id}/`;
+
+    console.log("Conectando ao WS:", socketUrl);
+
+    ws.current = new WebSocket(socketUrl);
+
+    ws.current.onopen = () => {
+      console.log("WS conectado!");
+    };
+
+    ws.current.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "recebe_localizacao") {
+          setCoordenadas({
+            latitude: data.payload.latitude,
+            longitude: data.payload.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01
+          });
+        }
+      } catch (e) {
+        console.log("Erro ao parsear mensagem:", e);
+      }
+    };
+
+    ws.current.onerror = (err) => {
+      console.log("WebSocket erro:", err);
+    };
+
+    ws.current.onclose = () => {
+      console.log("WS desconectado, tentando reconectar em 3s...");
+      setTimeout(() => {
+        if (ws.current?.readyState !== WebSocket.OPEN)
+          ws.current = new WebSocket(socketUrl);
+      }, 3000);
+    };
+
+    return () => {
+      console.log("Fechando WS...");
+      ws.current?.close();
+    };
+  }, [userType.responsavel_id]);
 
   const initLocation = async () => {
     const ok = await requestLocationPermission();
@@ -86,10 +140,10 @@ export default function MapScreen() {
         </ButtonCore>
       ) : (
         <>
-          {region ? (
+          {region || coordenadas ? (
             <MapView
               provider={PROVIDER_GOOGLE}
-              region={region}
+              region={coordenadas ? coordenadas : region}
               onRegionChange={() => {}}
               style={isFullScreen ? styles.mapFull : styles.mapSmall}
               showsUserLocation={true}

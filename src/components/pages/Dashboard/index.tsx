@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../../store/userSlice';
+import { setUserType } from '../../../store/userTypeSlice';
 import { ButtonCore } from '../../buttons/button-core';
 import api from '../../conexao/api';
 import { Input } from '../../input/input';
@@ -12,6 +13,11 @@ export default function Dashboard() {
   const token = useSelector((state: any) => state.user.token);
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
+  const user = useSelector((state: any) => state.user)
+  const userType = useSelector((state: any) => state.userType)
+
+  console.log(user, 'usuario')
+  console.log(userType, 'typeuser')
 
     const onReceive = useCallback((data: any) => {
       const user = {
@@ -24,17 +30,34 @@ export default function Dashboard() {
       dispatch(setUser(user));
     }, [dispatch]);
 
+    const onReceiveInformation = useCallback((data: any) => {
+      const user = {
+        responsavel_id: data.responsavel_id,
+        amparado_id: data.amparado_id
+      };
+
+      dispatch(setUserType(user));
+    }, [dispatch]);
+
 
   useEffect(() => {
     if (token) {
       api.get('user/')
         .then((res) => {
           onReceive(res.data);
-          // enviarNotificacao(8); Exemplo de Uso para notificacao, 8 = id do usuario que vai receber a notificacao
         })
       }
     
-  }, []);
+  }, [token]);
+
+  useEffect(() => {
+    if (user) {
+      api.get('information/')
+      .then((res) => {
+        onReceiveInformation(res.data)
+      })
+    }
+  }, [user])
 
   const createCodigo = () => {
     api.get("ampcodigo/")

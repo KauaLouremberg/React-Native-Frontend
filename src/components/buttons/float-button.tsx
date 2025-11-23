@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottom: {
-    bottom: 0,
+    bottom: 10,
   },
   top: {
     top: 0,
@@ -50,17 +50,17 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '90%',
-    height: 55,
-    borderRadius: 12,
+    height: 45,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 5,
+    elevation: 4,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
   },
   text: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
 });
