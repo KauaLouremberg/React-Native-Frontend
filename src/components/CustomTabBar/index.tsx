@@ -20,7 +20,7 @@ export function CustomTabBar({ state, descriptors, navigation }: any) {
         };
 
         return (
-          <TouchableOpacity key={route.key} style={touchable} onPress={onPress}>
+          <TouchableOpacity key={route.key} style={touchable} hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }} onPress={onPress}>
             <Icon size={24} color={isFocused ? colors.primaryLight : colors.neutral[500]} />
           </TouchableOpacity>
         );

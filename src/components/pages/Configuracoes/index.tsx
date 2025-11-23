@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useSelector } from 'react-redux';
+import { colors } from '../../../core/constants/colors';
 import { useConfigRequestMutation } from '../../../core/http/react-query/configuracao';
 import { perfilRequest } from '../../../core/http/requests/configuracao';
 import { ConfigValidationDto } from '../../../core/models/dto/config-validation-dto';
@@ -13,6 +14,7 @@ import { configValidationSchema } from '../../../core/models/validation-schemas/
 import { ButtonCore } from '../../buttons/button-core';
 import FloatButton from '../../buttons/float-button';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
+import SpinningIcon from '../../ElementosForm/SpinningIcon';
 import { ToastNotify } from '../../ElementosForm/Toast';
 import { HeaderNavigation } from '../../headerNavigation/header-navigation';
 import { Input } from '../../input/input';
@@ -75,7 +77,6 @@ const Configuracoes = ({ navigation }: any) => {
   
     async function onSubmit(data: ConfigValidationDto) {
       try {
-        console.log('bateu aqui')
         await configRequestAsync({ data });
       } catch {
         ToastNotify({
@@ -84,7 +85,6 @@ const Configuracoes = ({ navigation }: any) => {
           message: 'Ocorreu um erro ao enviar os dados!',
           time: 2500,
         });
-        console.log('bateu aqui')
       }
     }
 
@@ -101,7 +101,13 @@ const Configuracoes = ({ navigation }: any) => {
             key: 'perfil',
             title: 'Perfil',
             render: () => (
-              <View style={{ paddingHorizontal: 24, height: '100%' }}>
+              isLoading || isFetching ? (
+              <View style={{ flex: 1, justifyContent: "center", alignItems: "center", top: 325 }}>
+                <SpinningIcon color={colors.primary} size={40}/>
+              </View>
+              ) : 
+              (
+                <View style={{ paddingHorizontal: 24, height: '100%' }}>
                 <Controller
                   control={control}
                   name='cpf'
@@ -153,10 +159,6 @@ const Configuracoes = ({ navigation }: any) => {
                   />
                 )}
               />
-
-              <Texto>{JSON.stringify(errors)}</Texto>
-
-                
                 {/* Componente pra esse infame tbm */}
 
                 <ButtonCore
@@ -165,6 +167,8 @@ const Configuracoes = ({ navigation }: any) => {
                   Adicionar Amparado
                 </ButtonCore>
               </View>
+              ) 
+              
             ),
           },
           {
