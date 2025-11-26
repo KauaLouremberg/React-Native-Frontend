@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../core/constants/colors';
 import { useConfigRequestMutation } from '../../../core/http/react-query/configuracao';
@@ -14,7 +13,6 @@ import { ConfigValidationDto } from '../../../core/models/dto/config-validation-
 import { EnderecoValidationDto } from '../../../core/models/dto/endereco-validation-dto';
 import { configValidationSchema } from '../../../core/models/validation-schemas/config-validation-schema';
 import { enderecoValidationSchema } from '../../../core/models/validation-schemas/endereco-validation-schema';
-import { ButtonCore } from '../../buttons/button-core';
 import FloatButton from '../../buttons/float-button';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
 import SpinningIcon from '../../ElementosForm/SpinningIcon';
@@ -90,7 +88,7 @@ const Configuracoes = ({ navigation }: any) => {
         apelido: data.apelido ?? '',
         tipo_conta: usuario && usuario.is_amparado ? "U" : "A",
         sexo: data.sexo ?? '',
-        data_nascimento: new Date(data.data_nascimento ?? '')
+        data_nascimento: new Date(data.data_nascimento)
       })
     }
   }, [data, reset])
@@ -211,8 +209,8 @@ const Configuracoes = ({ navigation }: any) => {
         render={({ field: { value, onChange} }) => (
           <DateTimePickerComponent
             label="Data de nascimento"
-            value={value as any}
-            onChange={onChange}
+            value={value ? new Date(value) : new Date()}
+            onChange={(date) => onChange(date)}
           />
         )}
       />
@@ -221,22 +219,16 @@ const Configuracoes = ({ navigation }: any) => {
       control={control}
       name='sexo'
       render={({ field: { value, onChange} }) => (
-        <DropDownPicker
-          open={open}
-          value={value}
-          items={itens}
-          setOpen={setOpen}
-          setValue={setValue}
-          onChangeValue={onChange}
-          setItems={setItens}
-          placeholder="Selecione o Sexo"
-          style={{
-            borderColor: '#ccc',
-            borderWidth: 1,
-            borderRadius: 8,
-            top: 5,
-          }}
-        />
+         <Input
+            label="Sexo"
+            variant="form"
+            inputMode={'text'}
+            placeholder="Sexo"
+            maxLength={255}
+            value={value}
+            onChangeText={onChange}
+            error={errors.sexo?.message}
+      />
       )}
     />
     </View>
@@ -381,13 +373,6 @@ const Configuracoes = ({ navigation }: any) => {
           },
         ]}
       />
-
-      <ButtonCore
-        style={{top: -300}}
-        onPress={() => navigation.navigate('Amparado-Register')}
-      >
-        Adicionar Amparado
-      </ButtonCore>
 
       {activeTab && (
           
