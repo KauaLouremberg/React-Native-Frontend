@@ -39,12 +39,20 @@ export default function MapScreen() {
         const data = JSON.parse(event.data);
 
         if (data.type === "recebe_localizacao") {
-          setCoordenadas({
-            latitude: data.payload.latitude,
-            longitude: data.payload.longitude,
+          const position = ({
+            latitude: data.latitude,
+            longitude: data.longitude,
             latitudeDelta: 0.01,
             longitudeDelta: 0.01
           });
+
+          setCoordenadas(position)
+
+          console.log(position), 'coordenadas'
+
+          if (mapRef.current && !user.is_amparado) {
+            mapRef.current.animateToRegion(position, 500);
+          }
         }
       } catch (e) {
         console.log("Erro ao parsear mensagem:", e);
@@ -140,13 +148,16 @@ export default function MapScreen() {
         </ButtonCore>
       ) : (
         <>
+
           {region || coordenadas ? (
             <MapView
               provider={PROVIDER_GOOGLE}
-              region={coordenadas ? coordenadas : region}
+              ref={mapRef}
+              initialRegion={region}
+              onPress={handleMapPress}
               onRegionChange={() => {}}
               style={isFullScreen ? styles.mapFull : styles.mapSmall}
-              showsUserLocation={true}
+              showsUserLocation={user.is_amparado ? true : false}
               showsMyLocationButton={false}
             >
               {marker && (
@@ -156,6 +167,17 @@ export default function MapScreen() {
                   onDragEnd={handleDragEnd}
                   title="Marcador"
                   description="Arraste para ajustar"
+                />
+              )}
+
+              {!user.is_amparado && coordenadas && (
+                <Marker
+                  coordinate={{
+                    latitude: coordenadas.latitude,
+                    longitude: coordenadas.longitude
+                  }}
+                  title="Amparado"
+                  description="Última localização"
                 />
               )}
             </MapView>
