@@ -1,5 +1,5 @@
 import { Flag } from 'lucide-react-native';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors } from '../../../../core/constants/colors';
 import { POPPINS } from '../../../../core/constants/poppins';
 import { Texto } from '../../../texto';
@@ -15,10 +15,7 @@ export function WithoutAmp() {
         />
         <Texto style={style.withoutAmp}>
           Você não tem nenhum amparado vinculado. Para se vincular à um
-          amparado,{' '}
-          <TouchableOpacity activeOpacity={0.8}>
-            <Texto style={style.touch}>Toque aqui</Texto>
-          </TouchableOpacity>
+          amparado, <Texto style={style.touch}>Toque aqui</Texto>
         </Texto>
       </View>
     </View>

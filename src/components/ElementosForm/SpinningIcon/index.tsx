@@ -1,39 +1,58 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, Easing } from "react-native";
-import AntDesign from "react-native-vector-icons/AntDesign";
+import { LoaderCircle } from 'lucide-react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Easing } from 'react-native';
+import { colors } from '../../../core/constants/colors';
+import { Texto } from '../../texto';
 
-export default function SpinningIcon({ size = 24, color = "#fff", style }: any) {
+export default function SpinningIcon({
+  size = 24,
+  color = colors.primary,
+  style,
+}: any) {
   const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.timing(spinValue, {
         toValue: 1,
-        duration: 800,
+        duration: 1200,
         easing: Easing.linear,
         useNativeDriver: true,
-      })
-    ).start();
-  }, []);
+      }),
+    );
+
+    animation.start();
+
+    return () => animation.stop();
+  }, [spinValue]);
 
   const rotate = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
+    outputRange: ['0deg', '360deg'],
   });
 
   return (
     <Animated.View
-      style={[{
-        width: size,
-        height: size,
-        justifyContent: "center",
-        alignItems: "center",
-        transform: [{ rotate }],
-      },
-      style
-    ]}
+      style={[
+        {
+          width: '100%',
+          height: size,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        style,
+      ]}
     >
-      <AntDesign name="loading1" size={size * 0.8} color={color} />
+      <Animated.View
+        style={{
+          transform: [{ rotate }],
+        }}
+      >
+        <LoaderCircle size={size * 1.2} color={color} />
+      </Animated.View>
+      <Texto style={{ color: colors.heading }}>
+        Estamos preparando o sistema para você!
+      </Texto>
     </Animated.View>
   );
 }
