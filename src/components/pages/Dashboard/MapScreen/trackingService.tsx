@@ -10,32 +10,34 @@ const TrackingService = {
 
   async startNative() {
     try {
-      const token = await AsyncStorage.getItem("accessToken");
+      const token = await AsyncStorage.getItem('accessToken');
       if (!token) {
-        console.log("[TrackingService] Sem token para iniciar native service");
+        console.log('[TrackingService] Sem token para iniciar native service');
         return;
       }
 
-      console.log("[TrackingService] startNative → iniciando FOREGROUND SERVICE");
+      console.log(
+        '[TrackingService] startNative → iniciando FOREGROUND SERVICE',
+      );
 
       LocationModule.startService(token, 10000, 10);
     } catch (e) {
-      console.log("Erro ao iniciar serviço nativo:", e);
+      console.log('Erro ao iniciar serviço nativo:', e);
     }
   },
 
   async stopNative() {
     try {
-      console.log("[TrackingService] stopNative → parando FOREGROUND SERVICE");
+      console.log('[TrackingService] stopNative → parando FOREGROUND SERVICE');
       LocationModule.stopService();
     } catch (e) {
-      console.log("Erro ao parar serviço nativo:", e);
+      console.log('Erro ao parar serviço nativo:', e);
     }
   },
 
   async start() {
     console.log('[TrackingService] Iniciando rastreamento JS (foreground)');
-    console.log("[TrackingService] watchPosition iniciado, ID:", this.watchId);
+    console.log('[TrackingService] watchPosition iniciado, ID:', this.watchId);
 
     const granted = await this.requestPermissions();
     if (!granted) {
@@ -50,12 +52,12 @@ const TrackingService = {
     try {
       if (Platform.OS === 'android') {
         const fine = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
         if (fine !== PermissionsAndroid.RESULTS.GRANTED) return false;
 
         const bg = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+          PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
         );
         return bg === PermissionsAndroid.RESULTS.GRANTED;
       }
@@ -72,24 +74,25 @@ const TrackingService = {
     }
 
     this.watchId = Geolocation.watchPosition(
-      (pos) => {
-        console.log("[TrackingService] (JS) posição:", pos.coords);
-        
-        api.post("localizacao/", pos.coords)
-        .then((res) => {
-          console.info("Coordenadas enviadas: ", pos.coords, res)
-        })
-        .catch((err) => {
-          console.error("Ocorreu um erro", err);
-        })
+      pos => {
+        console.log('[TrackingService] (JS) posição:', pos.coords);
+
+        api
+          .post('localizacao/', pos.coords)
+          .then(res => {
+            console.info('Coordenadas enviadas: ', pos.coords, res);
+          })
+          .catch(err => {
+            console.error('Ocorreu um erro', err);
+          });
       },
-      (err) => console.log('[WatchPosition-JS] erro:', err),
+      err => console.log('[WatchPosition-JS] erro:', err),
       {
         enableHighAccuracy: true,
-        distanceFilter: 10,
+        distanceFilter: 0,
         interval: 5000,
         fastestInterval: 3000,
-      }
+      },
     );
 
     console.log('[TrackingService] watchPosition (JS) iniciado');
@@ -104,7 +107,7 @@ const TrackingService = {
     }
 
     this.stopNative();
-  }
+  },
 };
 
 export default TrackingService;
