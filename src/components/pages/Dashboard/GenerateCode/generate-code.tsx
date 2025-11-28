@@ -22,16 +22,17 @@ export default function GenerateCode() {
   const onReceive = useCallback(
     (data: any) => {
       const user = {
-        id: data.id,
-        nome: data.nome,
+        id: data.data.id,
+        nome: data.data.nome,
         token: token,
-        is_amparado: data.is_amparado,
+        is_amparado: data.data.is_amparado,
+        has_perfil: data.has_perfil ? data.has_perfil : false
       };
 
       dispatch(setUser(user));
     },
     [dispatch],
-  );
+  ); 
 
   const onReceiveInformation = useCallback(
     (data: any) => {
