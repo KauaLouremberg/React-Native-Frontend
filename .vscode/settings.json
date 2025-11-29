@@ -18,5 +18,6 @@
     "javascriptreact",
     "typescriptreact"
   ],
-  "eslint.alwaysShowStatus": true
+  "eslint.alwaysShowStatus": true,
+  "java.compile.nullAnalysis.mode": "disabled"
 }

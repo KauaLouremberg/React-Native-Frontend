@@ -89,7 +89,7 @@ const TrackingService = {
       err => console.log('[WatchPosition-JS] erro:', err),
       {
         enableHighAccuracy: true,
-        distanceFilter: 0,
+        distanceFilter: 10,
         interval: 5000,
         fastestInterval: 3000,
       },

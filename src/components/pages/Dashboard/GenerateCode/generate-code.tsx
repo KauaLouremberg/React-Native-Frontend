@@ -29,6 +29,8 @@ export default function GenerateCode() {
         has_perfil: data.has_perfil ? data.has_perfil : false
       };
 
+      console.log('user', user)
+
       dispatch(setUser(user));
     },
     [dispatch],
@@ -50,6 +52,7 @@ export default function GenerateCode() {
     if (token) {
       api.get('user/').then(res => {
         onReceive(res.data);
+        console.log(res.data, 'valores do back')
       });
     }
   }, [token]);

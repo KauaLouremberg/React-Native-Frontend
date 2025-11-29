@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Globe, InfoIcon, User } from 'lucide-react-native';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import { colors } from '../../core/constants/colors';
 import { useLoginRequestMutation } from '../../core/http/react-query/login';
 import { ActionButtonInteface } from '../../core/interface/action-button-interface';
@@ -44,13 +43,13 @@ export default function Login({ navigation }: any) {
     },
   });
 
-  const token = useSelector((state: any) => state.user.token)
+  // const token = useSelector((state: any) => state.user.token)
 
-  useEffect(() => {
-    if (token) {
-      navigation.replace("MainTabs");
-    }
-  }, [token])
+  // useEffect(() => {
+  //   if (token) {
+  //     navigation.replace("MainTabs");
+  //   }
+  // }, [token])
 
   const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
     onSuccess: () => {

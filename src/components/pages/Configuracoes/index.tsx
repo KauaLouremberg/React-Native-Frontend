@@ -15,6 +15,7 @@ import { configValidationSchema } from '../../../core/models/validation-schemas/
 import { enderecoValidationSchema } from '../../../core/models/validation-schemas/endereco-validation-schema';
 import FloatButton from '../../buttons/float-button';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
+import Select from '../../ElementosForm/Select';
 import SpinningIcon from '../../ElementosForm/SpinningIcon';
 import { ToastNotify } from '../../ElementosForm/Toast';
 import { HeaderNavigation } from '../../headerNavigation/header-navigation';
@@ -22,10 +23,12 @@ import { Input } from '../../input/input';
 
 const Configuracoes = ({ navigation }: any) => {
   const usuario = useSelector((state: any) => state.user);
-  const [value, setValue] = useState(null);
   const [activeTab, setActiveTab] = useState<'perfil' | 'endereco'>('perfil');
-  const [open, setOpen] = useState(false);
   const QueryClient = useQueryClient();
+  const has_perfil = useSelector((state: any) => state.user.has_perfil)
+  // const [value, setValue] = useState();
+
+  console.log(has_perfil)
 
   const [itens, setItens] = useState<string | any>([
     {label: 'Masculino', value: 'M'},
@@ -219,16 +222,12 @@ const Configuracoes = ({ navigation }: any) => {
       control={control}
       name='sexo'
       render={({ field: { value, onChange} }) => (
-         <Input
-            label="Sexo"
-            variant="form"
-            inputMode={'text'}
-            placeholder="Sexo"
-            maxLength={255}
-            value={value}
-            onChangeText={onChange}
-            error={errors.sexo?.message}
-      />
+         <Select
+          label='Sexo'
+          options={itens}
+          value={value}
+          onChange={onChange}
+        />
       )}
     />
     </View>
@@ -363,6 +362,7 @@ const Configuracoes = ({ navigation }: any) => {
           {
             key: 'endereco',
             title: 'Endereco',
+            disabled: !has_perfil,
             render: () => (
               <FormularioEnderecoContent 
                 control={enderecoControl} 

@@ -8,6 +8,7 @@ type TabDefinition = {
   title: string;
   component?: React.ComponentType<any>;
   render?: () => React.ReactNode;
+  disabled?: boolean;
   children?: React.ReactNode;
   onPress?: () => void;
 };
@@ -47,6 +48,7 @@ export function HeaderNavigation({
         {tabs.map((tab, i) => (
           <TouchableOpacity
             key={tab.key}
+            disabled={tab.disabled}
             onPress={() => handlePress(i)}
             style={[
               styles.tabButton,
