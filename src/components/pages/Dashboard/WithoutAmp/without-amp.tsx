@@ -1,25 +1,53 @@
+import { useNavigation } from '@react-navigation/native';
 import { Flag } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { colors } from '../../../../core/constants/colors';
 import { POPPINS } from '../../../../core/constants/poppins';
 import { Texto } from '../../../texto';
 
 export function WithoutAmp() {
-  return (
-    <View style={style.section}>
-      <View style={style.container}>
-        <Flag
-          size={36}
-          fill={colors.primaryLight}
-          stroke={colors.primaryLight}
-        />
-        <Texto style={style.withoutAmp}>
-          Você não tem nenhum amparado vinculado. Para se vincular à um
-          amparado, <Texto style={style.touch}>Toque aqui</Texto>
-        </Texto>
+  const navigation = useNavigation<any>();
+  const user = useSelector((state: any) => state.user);
+
+  return (<>
+    {user.has_perfil ? (
+      <View style={style.section}>
+        <View style={style.container}>
+          <Flag
+            size={36}
+            fill={colors.primaryLight}
+            stroke={colors.primaryLight}
+          />
+          <Texto style={style.withoutAmp}>
+            Você não tem nenhum amparado vinculado.
+          </Texto>
+          <Texto style={style.withoutAmp}>
+            Para se vincular à um
+            amparado 
+          </Texto>
+          <Texto onPress={() => navigation.navigate("Amparado-Register")} style={style.touch}>Toque aqui</Texto>
+        </View>
       </View>
-    </View>
-  );
+    ): (
+      <View style={style.section}>
+        <View style={style.container}>
+          <Flag
+            size={36}
+            fill={colors.primaryLight}
+            stroke={colors.primaryLight}
+          />
+          <Texto style={style.withoutAmp}>
+            Você não tem um Perfil cadastrado
+          </Texto>
+          <Texto style={style.withoutAmp}>
+            Para cadastrar um perfil 
+          </Texto>
+          <Texto onPress={() => navigation.navigate("Configuracoes")} style={style.touch}>Toque aqui</Texto>
+        </View>
+      </View>
+    )}
+  </>);
 }
 
 const style = StyleSheet.create({

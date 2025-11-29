@@ -25,6 +25,8 @@ const Select = ({
       errorMessage,
     } = inputStyle;
 
+  const selectedOption = options.find((opt: any) => opt.value === value);
+
   return (
     <Fragment>
         <View style={container}>
@@ -46,7 +48,7 @@ const Select = ({
                 color: colors.white, 
                 fontWeight: 'bold'
               }}>
-              {value ? value : "Selecione um Item"}
+              {selectedOption ? selectedOption.label : "Selecione um Item"}
             </Texto>
             
           </TouchableOpacity>

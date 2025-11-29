@@ -1,10 +1,10 @@
 /* eslint-disable react-native/no-inline-styles */
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { colors } from '../../../core/constants/colors';
 import { useConfigRequestMutation } from '../../../core/http/react-query/configuracao';
 import { useEnderecoRequestMutation } from '../../../core/http/react-query/endereco';
@@ -13,6 +13,7 @@ import { ConfigValidationDto } from '../../../core/models/dto/config-validation-
 import { EnderecoValidationDto } from '../../../core/models/dto/endereco-validation-dto';
 import { configValidationSchema } from '../../../core/models/validation-schemas/config-validation-schema';
 import { enderecoValidationSchema } from '../../../core/models/validation-schemas/endereco-validation-schema';
+import { setUser } from '../../../store/userSlice';
 import FloatButton from '../../buttons/float-button';
 import DateTimePickerComponent from '../../ElementosForm/DateTimePicker';
 import Select from '../../ElementosForm/Select';
@@ -21,19 +22,17 @@ import { ToastNotify } from '../../ElementosForm/Toast';
 import { HeaderNavigation } from '../../headerNavigation/header-navigation';
 import { Input } from '../../input/input';
 
-const Configuracoes = ({ navigation }: any) => {
+const Configuracoes = () => {
   const usuario = useSelector((state: any) => state.user);
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<'perfil' | 'endereco'>('perfil');
-  const QueryClient = useQueryClient();
   const has_perfil = useSelector((state: any) => state.user.has_perfil)
-  // const [value, setValue] = useState();
 
   console.log(has_perfil)
 
-  const [itens, setItens] = useState<string | any>([
+  const itens = [
     {label: 'Masculino', value: 'M'},
     {label: 'Feminino', value: 'F'}]  
-  );
 
   const { isLoading, isFetching, data } = useQuery({
     queryKey: ['config', usuario.id],
@@ -45,7 +44,7 @@ const Configuracoes = ({ navigation }: any) => {
 
   const { isLoading: enderecoIsLoading, isFetching: enderecoIsFetching, data: enderecoData } = useQuery({
     queryKey: ['endereco', usuario.id],
-    enabled: !!usuario.id,
+    enabled: !!usuario.id && !!usuario.has_perfil,
     queryFn: () => enderecoRequest(),
     gcTime: 5 * 60 * 1000,
     staleTime: Infinity
@@ -98,7 +97,6 @@ const Configuracoes = ({ navigation }: any) => {
 
   useEffect(() => {
     if (enderecoData) {
-      console.log('enderecoData', enderecoData)
       enderecoReset({
       estado: enderecoData.estado ?? '', 
       cidade: enderecoData.cidade ?? '',
@@ -110,15 +108,16 @@ const Configuracoes = ({ navigation }: any) => {
     }
   }, [enderecoData, enderecoReset])
 
-  const { configRequestAsync } = useConfigRequestMutation({
+  const { configRequestAsync, isConfigRequesting } = useConfigRequestMutation({
       onSuccess: () => {
         ToastNotify({
           type: 'success',
           title: 'Sucesso!',
           message: 'Suas informacoes foram salvas com sucesso!',
         });
-        navigation.replace('MainTabs')
-        QueryClient.invalidateQueries({ queryKey: ['config'] })
+        if (!usuario.has_perfil) {
+          dispatch(setUser({ has_perfil: true }));
+        }
       },
     });
   
@@ -135,15 +134,13 @@ const Configuracoes = ({ navigation }: any) => {
       }
     }
 
-  const { EnderecoRequestAsync } = useEnderecoRequestMutation({
+  const { EnderecoRequestAsync, isEnderecoRequesting } = useEnderecoRequestMutation({
     onSuccess: () => {
       ToastNotify({
         type: 'success',
         title: 'Sucesso!',
         message: 'Suas informacoes de Endereco foram salvas com sucesso!',
       });
-      navigation.replace('MainTabs')
-      QueryClient.invalidateQueries({ queryKey: ['endereco'] })
     }
   })
 
@@ -236,6 +233,7 @@ const Configuracoes = ({ navigation }: any) => {
             options={itens}
             value={value}
             onChange={onChange}
+            error={errors.sexo?.message}
           />
         )}
       />
@@ -386,8 +384,9 @@ const Configuracoes = ({ navigation }: any) => {
       {activeTab && (
           
           <FloatButton
+            disabled={isConfigRequesting || isEnderecoRequesting ? true : false}
             onPress={activeTab !== 'endereco' ? handleSubmit(onSubmit) : enderecoHandleSubmit(onSubmitEndereco)}
-            title="Salvar"
+            title={isConfigRequesting || isEnderecoRequesting ? (<SpinningIcon text={false} color={colors.white} size={20}/>) : "Salvar"}
             type='submit'
             position={'bottom'}
             style={{ width: 100, left: 150 }}

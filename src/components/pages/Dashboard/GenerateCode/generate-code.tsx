@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../../../../store/userSlice';
-import { setUserType } from '../../../../store/userTypeSlice';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
 import { Input } from '../../../input/input';
@@ -15,51 +13,50 @@ export default function GenerateCode() {
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
   const user = useSelector((state: any) => state.user);
 
-  const onReceive = useCallback(
-    (data: any) => {
-      const user = {
-        id: data.data.id,
-        nome: data.data.nome,
-        token: token,
-        is_amparado: data.data.is_amparado,
-        has_perfil: data.has_perfil ? data.has_perfil : false
-      };
+  // const onReceive = useCallback(
+  //   (data: any) => {
+  //     const user = {
+  //       id: data.data.id,
+  //       nome: data.data.nome,
+  //       token: token,
+  //       is_amparado: data.data.is_amparado,
+  //       has_perfil: data.has_perfil ? data.has_perfil : false
+  //     };
 
-      console.log('user', user)
+  //     console.log('user', user)
 
-      dispatch(setUser(user));
-    },
-    [dispatch],
-  ); 
+  //     dispatch(setUser(user));
+  //   },
+  //   [dispatch],
+  // ); 
 
-  const onReceiveInformation = useCallback(
-    (data: any) => {
-      const user = {
-        responsavel_id: data.responsavel_id,
-        amparado_id: data.amparado_id,
-      };
+  // const onReceiveInformation = useCallback(
+  //   (data: any) => {
+  //     const user = {
+  //       responsavel_id: data.responsavel_id,
+  //       amparado_id: data.amparado_id,
+  //     };
 
-      dispatch(setUserType(user));
-    },
-    [dispatch],
-  );
+  //     dispatch(setUserType(user));
+  //   },
+  //   [dispatch],
+  // );
 
-  useEffect(() => {
-    if (token) {
-      api.get('user/').then(res => {
-        onReceive(res.data);
-        console.log(res.data, 'valores do back')
-      });
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (token) {
+  //     api.get('user/').then(res => {
+  //       onReceive(res.data);
+  //     });
+  //   }
+  // }, [token]);
 
-  useEffect(() => {
-    if (user) {
-      api.get('information/').then(res => {
-        onReceiveInformation(res.data);
-      });
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     api.get('information/').then(res => {
+  //       onReceiveInformation(res.data);
+  //     });
+  //   }
+  // }, [user]);
 
   const createCodigo = () => {
     api

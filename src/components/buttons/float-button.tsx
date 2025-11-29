@@ -8,6 +8,7 @@ export default function FloatButton({
   color = '#fff',
   position,
   style,
+  disabled = false,
 }: any) {
   return (
     <View
@@ -19,6 +20,7 @@ export default function FloatButton({
       ]}
     >
       <TouchableOpacity
+        disabled={disabled}
         style={[styles.button, style, { backgroundColor }]}
         onPress={onPress}
         activeOpacity={0.8}

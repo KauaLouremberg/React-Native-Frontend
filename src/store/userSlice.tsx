@@ -13,12 +13,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      const { id, nome, is_amparado, token, has_perfil } = action.payload;
-      state.id = id;
-      state.nome = nome;
-      state.token = token;
-      state.is_amparado = is_amparado
-      state.has_perfil = has_perfil
+      Object.assign(state, action.payload);
     },
     clearUser: (state) => {
       state.id = null;
