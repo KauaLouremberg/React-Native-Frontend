@@ -43,14 +43,6 @@ export default function Login({ navigation }: any) {
     },
   });
 
-  // const token = useSelector((state: any) => state.user.token)
-
-  // useEffect(() => {
-  //   if (token) {
-  //     navigation.replace("MainTabs");
-  //   }
-  // }, [token])
-
   const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
     onSuccess: () => {
       ToastNotify({

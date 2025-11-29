@@ -11,6 +11,7 @@ const Select = ({
   onChange,
   error, 
   variant, 
+  size,
   style, 
   ...rest}: any) => {
 
@@ -35,14 +36,14 @@ const Select = ({
             onPress={() => setIsOpen(!isOpen)} 
             style={{
               backgroundColor: colors.primaryLight,
-              height: 35
+              height: size ? size : 35
             }}
           >
             <Texto 
               style={{
                 textAlign: 'center', 
                 top: 5, 
-                color: 'white', 
+                color: colors.white, 
                 fontWeight: 'bold'
               }}>
               {value ? value : "Selecione um Item"}
@@ -51,16 +52,10 @@ const Select = ({
           </TouchableOpacity>
 
           {isOpen ? (<>
-          {options.map((item: any) => ( 
+          {options.map((item: any, i: any) => ( 
             <TouchableOpacity
-              style={{
-                backgroundColor: colors.background,
-                borderRadius: 2,
-                borderWidth: 1,
-                borderTopWidth: 0,
-                borderColor: colors.border,
-                height: 35,
-              }}
+              key={i}
+              style={style}
               onPress={() => {
                   onChange(item.value);
                   setIsOpen(!isOpen)

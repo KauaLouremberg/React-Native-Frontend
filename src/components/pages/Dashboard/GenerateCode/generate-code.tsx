@@ -14,10 +14,6 @@ export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
   const user = useSelector((state: any) => state.user);
-  const userType = useSelector((state: any) => state.userType);
-
-  console.log(user, 'usuario');
-  console.log(userType, 'typeuser');
 
   const onReceive = useCallback(
     (data: any) => {

@@ -1,5 +1,6 @@
 import 'react-native-reanimated';
 
+import messaging from '@react-native-firebase/messaging';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -28,7 +29,6 @@ export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'Configur
 let currentState = AppState.currentState;
 
 AppState.addEventListener("change", (nextState) => {
-  console.log("AppState mudou:", nextState);
 
   if (nextState === "background") {
     console.log("App em background → iniciar serviço nativo");
@@ -63,6 +63,25 @@ function App() {
     configureNotificationChannel();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      console.log("Notificação recebida em foreground:", remoteMessage);
+
+      await notifee.displayNotification({
+        title: remoteMessage.notification?.title || 'Nova Notificação',
+        body: remoteMessage.notification?.body || 'Você recebeu uma nova mensagem.',
+        android: {
+          channelId: 'amparo_channel',
+          importance: AndroidImportance.HIGH,
+          pressAction: { id: 'default' },
+        },
+      });
+    });
+
+    return unsubscribe;
+  }, [messaging]);
+
+
   return (
     <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={Gesture}>
@@ -73,7 +92,7 @@ function App() {
             >
               <NavigationContainer>
                 <Stack.Navigator
-                  initialRouteName="Login"
+                  initialRouteName={'Login'}
                   screenOptions={directionTransition(SCREEN_ORDER)}
                 >
                   <Stack.Screen

@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import { useSelector } from 'react-redux';
 import api from '../../../conexao/api';
 
 const { LocationModule } = NativeModules;
@@ -11,8 +12,14 @@ const TrackingService = {
   async startNative() {
     try {
       const token = await AsyncStorage.getItem('accessToken');
+      const user = useSelector((state: any) => state.user.is_amparado);
+
       if (!token) {
         console.log('[TrackingService] Sem token para iniciar native service');
+        return;
+      }
+
+      if (!user) {
         return;
       }
 
@@ -74,17 +81,16 @@ const TrackingService = {
     }
 
     this.watchId = Geolocation.watchPosition(
-      pos => {
+      async pos => {
         console.log('[TrackingService] (JS) posição:', pos.coords);
+        const { latitude, longitude } = pos.coords;
 
-        api
-          .post('localizacao/', pos.coords)
-          .then(res => {
-            console.info('Coordenadas enviadas: ', pos.coords, res);
-          })
-          .catch(err => {
-            console.error('Ocorreu um erro', err);
-          });
+        await api.post("localizacao/", pos.coords);
+
+        await api.post("geofencing/", {
+          latitude,
+          longitude
+        });
       },
       err => console.log('[WatchPosition-JS] erro:', err),
       {

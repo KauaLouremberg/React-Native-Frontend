@@ -219,17 +219,26 @@ const Configuracoes = ({ navigation }: any) => {
       />
 
       <Controller
-      control={control}
-      name='sexo'
-      render={({ field: { value, onChange} }) => (
-         <Select
-          label='Sexo'
-          options={itens}
-          value={value}
-          onChange={onChange}
-        />
-      )}
-    />
+        control={control}
+        name='sexo'
+        render={({ field: { value, onChange} }) => (
+          <Select
+            label='Sexo'
+            size={35}
+            style={{
+              backgroundColor: colors.background,
+              borderRadius: 2,
+              borderWidth: 1,
+              borderTopWidth: 0,
+              borderColor: colors.border,
+              height: 35
+            }}
+            options={itens}
+            value={value}
+            onChange={onChange}
+          />
+        )}
+      />
     </View>
   );
 };
