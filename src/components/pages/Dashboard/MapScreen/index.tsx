@@ -1,4 +1,4 @@
-import { LocateFixed, MapPin, MapPinPen, MapPinPlus, MapPinPlusInside, MapPinX } from 'lucide-react-native';
+import { LocateFixed, MapPin, MapPinCheck, MapPinPen, MapPinPlusInside, MapPinX } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -32,8 +32,6 @@ export default function MapScreen() {
   const [valueRadius, setValueRadius] = useState();
   const [nomeValue, setNomeValue] = useState('Area Segura');
   const [nome, setNome] = useState('Area Segura');
-  console.log(radius, 'raio')
-  console.log(valueRadius, 'valueRadius')
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -187,7 +185,7 @@ export default function MapScreen() {
         center_lat: selectedCenter.latitude,
         center_lng: selectedCenter.longitude,
         radius,
-        nome: nomeValue
+        nome: nome
       });
 
       setAreas(prev => [...prev, {
@@ -300,7 +298,7 @@ export default function MapScreen() {
               <Texto
                 style={{
                   position: "absolute",
-                  top: "20%",
+                  top: "10%",
                   alignSelf: "center",
                   zIndex: 999,
                   backgroundColor: colors.background,
@@ -317,7 +315,7 @@ export default function MapScreen() {
                 <View 
                   style={{
                     position: "absolute",
-                    top: "30%",
+                    top: "20%",
                     alignSelf: "center",
                     zIndex: 999,
                     backgroundColor: colors.background,
@@ -413,6 +411,21 @@ export default function MapScreen() {
               }}
             >
 
+              <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
+                <View style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 60,
+                  borderWidth: 1,
+                  borderColor: colors.white,
+                  backgroundColor: colors.primaryLight,
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <MapPinPen color={colors.white} />
+                </View>
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={() => setDrawingArea(!drawingArea)}>
                 <View style={{
                   width: 60,
@@ -465,35 +478,6 @@ export default function MapScreen() {
               </TouchableOpacity>
             </View>
 
-            <View
-              style={{
-                position: 'absolute',
-                left: 20,
-                bottom: 40,
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 20,
-                zIndex: 999
-              }}
-            >
-
-              <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
-                <View style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 60,
-                  borderWidth: 1,
-                  borderColor: colors.white,
-                  backgroundColor: colors.primaryLight,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <MapPinPen color={colors.white} />
-                </View>
-              </TouchableOpacity>
-
-            </View>
-
             <View style={{
                     position: "absolute",
                     bottom: 30,
@@ -513,14 +497,14 @@ export default function MapScreen() {
                     height: 40,
                     top: 20,
                     left: 2,
-                    borderRadius: 20,
+                    borderRadius: 18,
                     backgroundColor: colors.primaryLight,
                     justifyContent: 'center',
                     alignItems: 'center',
                     flexDirection: 'row',
                     gap: 5
                   }}>
-                    <MapPinPlus color={colors.white}  />
+                    <MapPinCheck color={colors.white}  />
                     <Texto style={{color: colors.white, fontWeight: 'bold'}}> 
                       Salvar
                     </Texto>
@@ -537,7 +521,7 @@ export default function MapScreen() {
                     height: 40,
                     top: 20,
                     left: 2,
-                    borderRadius: 20,
+                    borderRadius: 18,
                     backgroundColor: colors.primaryLight,
                     justifyContent: 'center',
                     alignItems: 'center',

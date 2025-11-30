@@ -35,17 +35,30 @@ export async function loginRequest(data: LoginValidationDto) {
       store.dispatch(setUser(userPayload));
 
       if (userPayload.has_perfil) {
-        const responseInfo = await api.get('information/');
-        const infoData = responseInfo.data;
+        try {
+          const responseInfo = await api.get('information/');
 
-        const typePayload = {
-          responsavel_id: infoData.responsavel_id,
-          responsavel_name: infoData.responsavel_name,
-          amparado_id: infoData.amparado_id,
-          amparado_name: infoData.amparado_name,
-        };
+          const infoData = responseInfo.data;
 
-        store.dispatch(setUserType(typePayload));
+          const typePayload = {
+            responsavel_id: infoData.responsavel_id,
+            responsavel_name: infoData.responsavel_name,
+            amparado_id: infoData.amparado_id,
+            amparado_name: infoData.amparado_name,
+          };
+
+          store.dispatch(setUserType(typePayload));
+        } catch {
+          console.warn('Information Error!')
+          
+          await registerDevice();
+
+          if (userData.is_amparado) {
+            await TrackingService.start();
+          }
+
+          return;
+        }
       }
 
       await registerDevice();

@@ -1,8 +1,41 @@
+import { createStackNavigator } from '@react-navigation/stack';
 import { BookMarked, Home, MapPin, Settings } from "lucide-react-native";
 import { CustomTabBar } from ".";
-import { ConfigStackScreen, DashboardStackScreen, MapaStackScreen } from "../PagesStack";
 import Tab from "../TabNavigator";
 
+import Configuracoes from '../pages/Configuracoes';
+import Dashboard from '../pages/Dashboard';
+import MapScreen from '../pages/Dashboard/MapScreen';
+
+const DashboardStack = createStackNavigator();
+
+export function DashboardStackScreen() {
+  return (
+    <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+      <DashboardStack.Screen name="Dashboard" component={Dashboard} />
+    </DashboardStack.Navigator>
+  );
+}
+
+const MapaStack = createStackNavigator();
+
+export function MapaStackScreen() {
+  return (
+    <MapaStack.Navigator screenOptions={{ headerShown: false }}>
+      <MapaStack.Screen name="Mapa" component={MapScreen} />
+    </MapaStack.Navigator>
+  );
+}
+
+const ConfigStack = createStackNavigator();
+
+export function ConfigStackScreen() {
+  return (
+    <ConfigStack.Navigator screenOptions={{ headerShown: false }}>
+      <ConfigStack.Screen name="Configuracoes" component={Configuracoes} />
+    </ConfigStack.Navigator>
+  );
+}
 
 export function MainTabs() {
   return (
@@ -13,33 +46,25 @@ export function MainTabs() {
       <Tab.Screen
         name="Dashboard"
         component={DashboardStackScreen}
-        options={{
-          tabBarIcon: Home,
-        }}
+        options={{ tabBarIcon: Home }}
       />
 
       <Tab.Screen
         name="Mapa"
         component={MapaStackScreen}
-        options={{
-          tabBarIcon: MapPin,
-        }}
+        options={{ tabBarIcon: MapPin }}
       />
 
       <Tab.Screen
         name="Bookmarks"
         component={DashboardStackScreen}
-        options={{
-          tabBarIcon: BookMarked,
-        }}
+        options={{ tabBarIcon: BookMarked }}
       />
 
       <Tab.Screen
         name="Configuracoes"
         component={ConfigStackScreen}
-        options={{
-          tabBarIcon: Settings,
-        }}
+        options={{ tabBarIcon: Settings }}
       />
     </Tab.Navigator>
   );
