@@ -16,7 +16,7 @@ export default function MapScreen() {
   const [coordenadas, setCoordenadas] = useState<any>(null);
   const [region, setRegion] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(true);
   const mapRef = useRef<any>(null);
   const userType = useSelector((state: any) => state.userType);
@@ -132,10 +132,11 @@ export default function MapScreen() {
     );
   };
 
-  const handleShowMap = async () => {
-    if (!showMap) await initLocation();
-    setShowMap(true);
-  };
+  // const handleShowMap = async () => {
+  //   if (!showMap) await initLocation();
+  //   setShowMap(true);
+  // };
+  
 
   const handleMapPress = (e: any) => {
   const { latitude, longitude } = e.nativeEvent.coordinate;
@@ -221,13 +222,14 @@ export default function MapScreen() {
     }
 
     loadAreas();
+    initLocation()
   }, []);
 
   return (
     <View style={styles.container}>
       {!showMap ? (
         <ButtonCore 
-          onPress={handleShowMap} 
+          // onPress={handleShowMap} 
           style={
             {
               height: 100,
