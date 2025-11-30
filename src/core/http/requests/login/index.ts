@@ -45,10 +45,13 @@ export async function loginRequest(data: LoginValidationDto) {
 
         store.dispatch(setUserType(typePayload));
       }
-    }
 
-    await registerDevice();
-    await TrackingService.start();
+      await registerDevice();
+
+      if (userData.is_amparado) {
+        await TrackingService.start();
+      }
+    }
 
     return result.data;
 

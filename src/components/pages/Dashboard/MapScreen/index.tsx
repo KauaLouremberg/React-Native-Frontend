@@ -28,9 +28,6 @@ export default function MapScreen() {
   const [radius, setRadius] = useState(10);
   const [firstTime, setFirstTime] = useState(false);
 
-  console.log(areas, 'areas', selectedCenter ,'selectedcenter')
-
-
   const ws = useRef<WebSocket | null>(null);
 
   const sendNotification = (id: any) => {
