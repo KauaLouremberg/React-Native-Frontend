@@ -389,7 +389,6 @@ const Configuracoes = () => {
             title={isConfigRequesting || isEnderecoRequesting ? (<SpinningIcon text={false} color={colors.white} size={20}/>) : "Salvar"}
             type='submit'
             position={'bottom'}
-            style={{ width: 100, left: 150 }}
           />
         
       )}

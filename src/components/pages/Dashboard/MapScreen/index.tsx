@@ -1,4 +1,4 @@
-import { LocateFixed, MapPin, MapPinPlus, MapPinPlusInside, MapPinX, Scan } from 'lucide-react-native';
+import { LocateFixed, MapPin, MapPinPlus, MapPinPlusInside, MapPinX } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -17,7 +17,7 @@ export default function MapScreen() {
   const [region, setRegion] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [showMap, setShowMap] = useState(false);
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(true);
   const mapRef = useRef<any>(null);
   const userType = useSelector((state: any) => state.userType);
   const user = useSelector((state: any) => state.user);
@@ -379,7 +379,7 @@ export default function MapScreen() {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => setIsFullScreen(false)}>
+              {/* <TouchableOpacity onPress={() => setIsFullScreen(false)}>
                 <View style={{
                   width: 60,
                   height: 60,
@@ -392,7 +392,7 @@ export default function MapScreen() {
                 }}>
                   <Scan color={colors.white} />
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity onPress={() => user.is_amparado ? sendNotification(userType.responsavel_id) : 
                 ToastNotify({
@@ -477,7 +477,7 @@ export default function MapScreen() {
             </View>
           </>) : (
             <View style={styles.controls}>
-              <Button title="Tela cheia" onPress={() => setIsFullScreen(true)} />
+              {/* <Button title="Tela cheia" onPress={() => setIsFullScreen(true)} /> */}
               <Button title="Centralizar" onPress={() => mapRef.current?.animateToRegion(region, 500)} />
               <Button title="Salvar local" onPress={sendMarkerToBackend} />
               <Button title="Fechar Mapa" onPress={() => setShowMap(false)}/>
@@ -492,7 +492,7 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   mapSmall: {
-    height: 250,
+    height: '100%',
     width: '100%',
     borderRadius: 12,
     overflow: 'hidden',
