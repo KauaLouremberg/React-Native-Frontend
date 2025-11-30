@@ -1,4 +1,4 @@
-import { LocateFixed, MapPin, MapPinCheck, MapPinPen, MapPinPlusInside, MapPinX } from 'lucide-react-native';
+import { LocateFixed, MapPin, MapPinCheck, MapPinned, MapPinOff, MapPinPen, MapPinPlusInside, MapPinX } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -16,12 +16,12 @@ import { Texto } from '../../../texto';
 export default function MapScreen() {
   const [coordenadas, setCoordenadas] = useState<any>(null);
   const [region, setRegion] = useState<any>(null);
-  const [marker, setMarker] = useState<any>(null);
   const [showMap, setShowMap] = useState(true);
-  const [isFullScreen, setIsFullScreen] = useState(true);
+  const isFullScreen = true;
   const mapRef = useRef<any>(null);
   const userType = useSelector((state: any) => state.userType);
   const user = useSelector((state: any) => state.user);
+  const [markers, setMarkers] = useState([]);
 
   const [areas, setAreas] = useState<any[]>([]);
   const [drawingArea, setDrawingArea] = useState(false);
@@ -32,6 +32,8 @@ export default function MapScreen() {
   const [valueRadius, setValueRadius] = useState();
   const [nomeValue, setNomeValue] = useState('Area Segura');
   const [nome, setNome] = useState('Area Segura');
+  const [isActive, setIsActive] = useState(false);
+  const [markerSelected, setMarkerSelected] = useState<string | number | any >(null);
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -138,47 +140,39 @@ export default function MapScreen() {
   };
 
   const handleMapPress = (e: any) => {
-  const { latitude, longitude } = e.nativeEvent.coordinate;
+    const { latitude, longitude } = e.nativeEvent.coordinate;
 
-  if (drawingArea) {
-    setSelectedCenter({ latitude, longitude } as any);
-    return;
-  }
+    if (drawingArea) {
+      setSelectedCenter({ latitude, longitude });
+      return;
+    }
 
-  setMarker({ latitude, longitude });
-};
+    const newMarker = {
+      id: Date.now(),
+      latitude,
+      longitude
+    };
+
+    setMarkers(prev => [...prev, newMarker] as any);
+  };
 
   const handleDragEnd = (e: any) => {
     const { latitude, longitude } = e.nativeEvent.coordinate;
-    setMarker({ latitude, longitude });
-  };
-
-  const sendMarkerToBackend = async () => {
-    if (!marker) return Alert.alert('Nenhum marcador', 'Toque no mapa para marcar um local primeiro.');
-    try {
-      const res = await api.post('teste-api/', {
-        latitude: marker.latitude,
-        longitude: marker.longitude,
-        label: 'Local marcado',
-      });
-      if (!res) throw new Error('Erro ao enviar');
-      ToastNotify({
-        type: 'success',
-        title: 'Sucesso!',
-        message: 'Localização salva com sucesso!',
-      });
-    } catch (err) {
-      console.warn(err);
-      ToastNotify({
-        type: 'error',
-        title: 'Erro!',
-        message: 'Ocorreu um erro ao salvar localização!',
-      });
-    }
+    setMarkers({ latitude, longitude } as any);
   };
   
   const saveArea = async () => {
     if (!selectedCenter) return;
+
+    if (user.is_amparado) {
+      ToastNotify({
+        type: "error",
+        title: "Erro",
+        message: "Essa função é apenas para Responsável!"
+      });
+
+      return;
+    }
 
     try {
       const res = await api.post("areas/", {
@@ -225,11 +219,110 @@ export default function MapScreen() {
     initLocation()
   }, []);
 
+  async function loadMarkers() {
+    try {
+      const res = await api.get("marcadores/");
+      setMarkers(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  useEffect(() => {
+    async function loadAreas() {
+      const res = await api.get("areas/");
+      setAreas(res.data.map((a: any) => ({
+        center: { latitude: a.latitude, longitude: a.longitude },
+        radius: a.raio,
+        nome: a.nome
+      })));
+    }
+
+    loadAreas();
+    loadMarkers();
+    initLocation()
+  }, []);
+
+  const saveMarkersToBackend = async () => {
+    if (markers.length === 0) {
+      return ToastNotify({
+        type: "error",
+        title: "Nenhum ponto",
+        message: "Toque no mapa para adicionar marcadores primeiro."
+      });
+    }
+
+    try {
+      const newMarkers = markers.filter((m: any) => m.id > 999999999999);
+
+      for (const marker of newMarkers as any) {
+        await api.post("marcadores/", {
+          latitude: marker.latitude,
+          longitude: marker.longitude,
+          nome: marker.nome || "Marcador"
+        });
+      }
+
+      ToastNotify({
+        type: "success",
+        title: "Sucesso!",
+        message: "Todos os marcadores foram salvos!",
+        time: 1500
+      });
+
+      await loadMarkers();
+
+      setMarkers(prev => prev.filter((m: any) => m.criado_em));
+
+    } catch (err) {
+      console.log(err);
+      ToastNotify({
+        type: "error",
+        title: "Erro!",
+        message: "Não foi possível salvar os marcadores."
+      });
+    }
+  };
+
+  const deleteMarker = async(marker: any) => {
+    try {
+
+      if (!marker.criado_em) {
+        setMarkers(prev => prev.filter((m: any) => m.id !== marker.id));
+        setIsActive(false);
+        return;
+      }
+
+      await api.delete(`marcadores/${marker.id}/`)
+
+      ToastNotify({
+        type: "success",
+        title: "Sucesso!",
+        message: "Marcador deletado com sucesso!",
+        time: 1500
+      }); 
+
+      setIsActive(false);
+      setMarkerSelected(null);
+
+      loadMarkers();
+
+    } catch (err) {
+      console.error(err);
+
+      ToastNotify({
+        type: "error",
+        title: "Erro!",
+        message: "Ocorreu um erro ao tentar deletar o marcador!"
+      });
+    }
+  }
+
+
   return (
     <View style={styles.container}>
       {!showMap ? (
         <ButtonCore 
-          // onPress={handleShowMap} 
           style={
             {
               height: 100,
@@ -252,6 +345,33 @@ export default function MapScreen() {
               showsUserLocation={user.is_amparado ? true : false}
               showsMyLocationButton={false}
             >
+
+              {markers.map((marker: { id: React.Key | null | undefined; latitude: any; longitude: any; nome: any; criado_em: any}) => (
+                <Marker
+                  key={marker.id}
+                  coordinate={{
+                    latitude: marker.latitude,
+                    longitude: marker.longitude
+                  }}
+                  title={marker.nome || 'Marcador'}
+                  draggable={marker.criado_em ? false : true}
+                  onSelect={() => {
+                    setIsActive(true)
+                    setMarkerSelected(marker)
+                  }}
+                  onDeselect={() => setIsActive(false)}
+                  onDragEnd={(e) => {
+                    const { latitude, longitude } = e.nativeEvent.coordinate;
+
+                    setMarkers(prev =>
+                      prev.map(m =>
+                        (m as any).id === marker.id ? { ...m as any, latitude, longitude } : m
+                      ) as any
+                    );
+                  }}
+                />
+              ))}
+
 
               {areas.map((area, index) => (
                 <Circle
@@ -403,15 +523,48 @@ export default function MapScreen() {
               style={{
                 position: 'absolute',
                 right: 20, 
-                bottom: 40,
+                bottom: isActive ? 60 : 40,
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 20,
                 zIndex: 999
               }}
             >
+              {!user.is_amparado ? (
+                <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
+                  <View style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 60,
+                    borderWidth: 1,
+                    borderColor: colors.white,
+                    backgroundColor: colors.primaryLight,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <MapPinPen color={colors.white} />
+                  </View>
+              </TouchableOpacity>
+              ) : null}
 
-              <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
+              {user.is_amparado && isActive ? (
+                <TouchableOpacity onPress={() => deleteMarker(markerSelected)}>
+                  <View style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 60,
+                    borderWidth: 1,
+                    borderColor: colors.white,
+                    backgroundColor: colors.primaryLight,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <MapPinOff color={colors.white} />
+                  </View>
+              </TouchableOpacity>
+              ) : null}
+              
+              <TouchableOpacity onPress={() => saveMarkersToBackend()}>
                 <View style={{
                   width: 60,
                   height: 60,
@@ -422,7 +575,7 @@ export default function MapScreen() {
                   justifyContent: 'center',
                   alignItems: 'center'
                 }}>
-                  <MapPinPen color={colors.white} />
+                  <MapPinned color={colors.white} />
                 </View>
               </TouchableOpacity>
 
@@ -542,7 +695,6 @@ export default function MapScreen() {
             <View style={styles.controls}>
               {/* <Button title="Tela cheia" onPress={() => setIsFullScreen(true)} /> */}
               <Button title="Centralizar" onPress={() => mapRef.current?.animateToRegion(region, 500)} />
-              <Button title="Salvar local" onPress={sendMarkerToBackend} />
               <Button title="Fechar Mapa" onPress={() => setShowMap(false)}/>
             </View>
           )}
