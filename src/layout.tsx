@@ -74,6 +74,7 @@ function App() {
           channelId: 'amparo_channel',
           importance: AndroidImportance.HIGH,
           pressAction: { id: 'default' },
+          smallIcon: 'ic_location'
         },
       });
     });
