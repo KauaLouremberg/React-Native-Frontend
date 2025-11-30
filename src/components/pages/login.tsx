@@ -11,6 +11,7 @@ import { loginValidationSchema } from '../../core/models/validation-schemas/logi
 import { loginStyle } from '../../styles/login/login-style';
 import { ActionButton } from '../buttons/action-button';
 import { ButtonCore } from '../buttons/button-core';
+import SpinningIcon from '../ElementosForm/SpinningIcon';
 import { ToastNotify } from '../ElementosForm/Toast';
 import { Input } from '../input/input';
 import { Texto } from '../texto';
@@ -141,7 +142,12 @@ export default function Login({ navigation }: any) {
             onPress={handleSubmit(onSubmit)}
             disabled={isLoginRequesting}
           >
-            Entrar
+            {
+              isLoginRequesting
+              ? <SpinningIcon text={false} color="white"/>
+              :
+              "Entrar"
+            }
           </ButtonCore>
         </View>
 

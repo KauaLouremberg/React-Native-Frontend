@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
+import SpinningIcon from '../../../ElementosForm/SpinningIcon';
 import { Input } from '../../../input/input';
 import { Texto } from '../../../texto';
 
@@ -12,6 +13,8 @@ export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
   const user = useSelector((state: any) => state.user);
+  const [isLoadingGenerate, setIsLoadingGenerate] = useState(false);
+  const [isLoadingSendCode, setIsLoadingSendCode] = useState(false);
 
   // const onReceive = useCallback(
   //   (data: any) => {
@@ -59,17 +62,22 @@ export default function GenerateCode() {
   // }, [user]);
 
   const createCodigo = () => {
+    setIsLoadingGenerate(true)
     api
       .get('ampcodigo/')
       .then(res => setCodigoAmp(res.data))
-      .catch(err => console.error('ocorreu um erro', err));
+      .catch(err => console.error('ocorreu um erro', err))
+      .finally(() => setIsLoadingGenerate(false));
   };
 
   const enviaCodigo = () => {
+    setIsLoadingGenerate(true)
     api
       .post('responsavel/', { id: codigoEnvio })
       .then(res => console.info('enviado com sucesso', res))
-      .catch(err => console.error('algo deu errado', err));
+      .catch(err => console.error('algo deu errado', err))
+      .finally(() => setIsLoadingSendCode(false));
+
   };
 
   return (
@@ -133,8 +141,13 @@ export default function GenerateCode() {
           Gerar codigo (amparado) - deve ser bloqueado se o usuario for
           responsavel - nao tem problema em gerar mais de uma vez
         </Texto>
-        <ButtonCore onPress={() => createCodigo()} style={{ width: '100%', marginTop: 10 }}>
-          Gerar código
+        <ButtonCore disabled={isLoadingGenerate} onPress={() => createCodigo()} style={{ width: '100%', marginTop: 10 }}>
+          {
+            isLoadingGenerate
+            ? <SpinningIcon text={false} color="white"/>
+            :
+            "Gerar código"
+          }
         </ButtonCore>
       </View>
 
@@ -148,8 +161,13 @@ export default function GenerateCode() {
           value={codigoEnvio}
           onChangeText={setCodigoEnvio}
         />
-        <ButtonCore onPress={() => enviaCodigo()} style={{ width: '100%', marginTop: 10 }}>
-          Enviar código
+        <ButtonCore disabled={isLoadingSendCode} onPress={() => enviaCodigo()} style={{ width: '100%', marginTop: 10 }}>
+          {
+            isLoadingSendCode
+            ? <SpinningIcon text={false} color="white"/>
+            :
+            "Enviar código"
+          }
         </ButtonCore>
       </View>
     </View>
