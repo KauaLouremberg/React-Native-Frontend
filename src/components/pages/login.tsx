@@ -44,7 +44,7 @@ export default function Login({ navigation }: any) {
   });
 
   const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       ToastNotify({
         type: 'success',
         title: 'Login!',

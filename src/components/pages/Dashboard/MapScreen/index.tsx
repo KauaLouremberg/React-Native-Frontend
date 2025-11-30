@@ -26,6 +26,7 @@ export default function MapScreen() {
   const [drawingArea, setDrawingArea] = useState(false);
   const [selectedCenter, setSelectedCenter] = useState<any>(null);
   const [radius, setRadius] = useState(10);
+  const [firstTime, setFirstTime] = useState(false);
 
   console.log(areas, 'areas', selectedCenter ,'selectedcenter')
 
@@ -90,8 +91,9 @@ export default function MapScreen() {
 
           console.log(position)
 
-          if (mapRef.current && !user.is_amparado) {
+          if (mapRef.current && !user.is_amparado && !firstTime) {
             mapRef.current.animateToRegion(position, 500);
+            setFirstTime(true);
           }
         }
       } catch (e) {
@@ -115,7 +117,7 @@ export default function MapScreen() {
       console.log("Fechando WS...");
       ws.current?.close();
     };
-  }, [userType.responsavel_id]);
+  }, [userType.responsavel_id, firstTime]);
 
   const initLocation = async () => {
     const ok = await requestLocationPermission();
@@ -300,7 +302,7 @@ export default function MapScreen() {
 
           {isFullScreen ? (
             <>
-            {!coordenadas && (
+            {!coordenadas && !user.is_amparado && (
               <Texto
                 style={{
                   position: "absolute",
@@ -362,7 +364,7 @@ export default function MapScreen() {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => user.is_amparado ? mapRef.current?.animateToRegion(region, 500) : ''}>
+              <TouchableOpacity onPress={() => user.is_amparado ? mapRef.current?.animateToRegion(region, 500) : mapRef.current?.animateToRegion(coordenadas, 500)}>
                 <View style={{
                   width: 60,
                   height: 60,
