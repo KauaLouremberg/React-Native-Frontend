@@ -17,27 +17,29 @@ import { Texto } from '../../../texto';
 export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
-  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(false);
+  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(true);
   const { ClipboardModule } = NativeModules;
 
   const usuario = useSelector((state: any) => state.user);
 
   const createCodigo = () => {
+    setIsLoadingSendCode(true);
     api
       .get('ampcodigo/?code=true')
       .then(res => setCodigoAmp(res.data))
-      .catch(err => console.error('ocorreu um erro', err));
+      .catch(err => console.error('ocorreu um erro', err))
+      .finally(() => setIsLoadingSendCode(false));
   };
 
   console.log('Código: ', codigoAmp);
 
   const enviaCodigo = () => {
-    setIsLoadingSendCode(false);
+    setIsLoadingSendCode(true);
     api
       .post('responsavel/', { id: codigoEnvio })
       .then(res => console.info('enviado com sucesso', res))
       .catch(err => console.error('algo deu errado', err))
-      .finally(() => setIsLoadingSendCode(true));
+      .finally(() => setIsLoadingSendCode(false));
   };
 
   useEffect(() => {
@@ -48,59 +50,74 @@ export default function GenerateCode() {
 
   return (
     <View style={styles.container}>
-      {usuario.is_amparado ? (
-        <View style={styles.wrapperAmparado}>
-          <View style={styles.codigoBox}>
-            <View style={styles.contentRow}>
-              <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
-
-              <TouchableOpacity
-                onPress={() => ClipboardModule.copy(codigoAmp)}
-                style={[styles.iconButton]}
-              >
-                <ClipBoard size={18} color={colors.white} />
-              </TouchableOpacity>
-            </View>
+      {isLoadingSendCode ? (
+        <>
+          <View style={styles.spinner}>
+            <SpinningIcon color={colors.primary} size={40} />
           </View>
-
-          <View style={styles.textWrapper}>
-            <Texto style={styles.text}>
-              Este código é um código de vinculação. Copie o código, e no
-              celular do responsável, insira o código para realizar a
-              vinculação.
-            </Texto>
-          </View>
-        </View>
+        </>
       ) : (
-        <View style={styles.wrapperNaoAmparado}>
-          <Input
-            label="Enviar codigo (responsavel)"
-            placeholder="Digite o codigo"
-            value={codigoEnvio}
-            onChangeText={setCodigoEnvio}
-          />
-          <ButtonCore
-            disabled={isLoadingSendCode}
-            onPress={() => enviaCodigo()}
-            style={styles.botaoEnviar}
-          >
-            {isLoadingSendCode ? (
-              <SpinningIcon text={false} color="white" />
-            ) : (
-              'Enviar código'
-            )}
-          </ButtonCore>
-          <Texto style={styles.text}>
-            Emita o código de vinculação no celular do amparado. Após a geração
-            do código, insira o código para realizar a vinculação.
-          </Texto>
-        </View>
+        <>
+          {usuario.is_amparado ? (
+            <View style={styles.wrapperAmparado}>
+              <View style={styles.codigoBox}>
+                <View style={styles.contentRow}>
+                  <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
+
+                  <TouchableOpacity
+                    onPress={() => ClipboardModule.copy(codigoAmp)}
+                    style={[styles.iconButton]}
+                  >
+                    <ClipBoard size={18} color={colors.white} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.textWrapper}>
+                <Texto style={styles.text}>
+                  Este código é um código de vinculação. Copie o código, e no
+                  celular do responsável, insira o código para realizar a
+                  vinculação.
+                </Texto>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.wrapperNaoAmparado}>
+              <Input
+                label="Enviar codigo (responsavel)"
+                placeholder="Digite o codigo"
+                value={codigoEnvio}
+                onChangeText={setCodigoEnvio}
+              />
+              <ButtonCore
+                disabled={isLoadingSendCode}
+                onPress={() => enviaCodigo()}
+                style={styles.botaoEnviar}
+              >
+                {isLoadingSendCode ? (
+                  <SpinningIcon text={false} color="white" />
+                ) : (
+                  'Enviar código'
+                )}
+              </ButtonCore>
+              <Texto style={styles.text}>
+                Emita o código de vinculação no celular do amparado. Após a
+                geração do código, insira o código para realizar a vinculação.
+              </Texto>
+            </View>
+          )}
+        </>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     width: '100%',
     paddingHorizontal: 15,
