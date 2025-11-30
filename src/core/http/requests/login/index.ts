@@ -40,7 +40,9 @@ export async function loginRequest(data: LoginValidationDto) {
 
         const typePayload = {
           responsavel_id: infoData.responsavel_id,
+          responsavel_name: infoData.responsavel_name,
           amparado_id: infoData.amparado_id,
+          amparado_name: infoData.amparado_name,
         };
 
         store.dispatch(setUserType(typePayload));

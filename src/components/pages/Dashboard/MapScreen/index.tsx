@@ -1,6 +1,6 @@
 import { LocateFixed, MapPin, MapPinPlus, MapPinPlusInside, MapPinX } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Button, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
@@ -89,7 +89,7 @@ export default function MapScreen() {
           console.log(position)
 
           if (mapRef.current && !user.is_amparado && !firstTime) {
-            mapRef.current.animateToRegion(position, 500);
+            mapRef.current.animateToRegion(position, 500);  
             setFirstTime(true);
           }
         }
@@ -241,7 +241,6 @@ export default function MapScreen() {
         </ButtonCore>
       ) : (
         <>
-          {region || coordenadas ? (
             <MapView
               provider={PROVIDER_GOOGLE}
               ref={mapRef}
@@ -276,28 +275,19 @@ export default function MapScreen() {
                 />
               )}
 
-              {marker && (
-                <Marker
-                  coordinate={marker}
-                  draggable
-                  onDragEnd={handleDragEnd}
-                  title="Marcador"
-                  description="Arraste para ajustar"
-                />
-              )}
-
               {!user.is_amparado && coordenadas && (
                 <Marker
-                  coordinate={{
-                    latitude: coordenadas.latitude,
-                    longitude: coordenadas.longitude
-                  }}
-                  title="Amparado"
-                  description="Última localização"
-                />
+                  title={user.nome}
+                  coordinate={coordenadas}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                >
+                  <Image
+                    source={require('../../../../../android/app/src/main/assets/icon_clean.png')}
+                    style={{ width: 40, height: 40 }}
+                  />
+                </Marker>
               )}
             </MapView>
-          ) : ''}
 
           {isFullScreen ? (
             <>
