@@ -523,7 +523,7 @@ export default function MapScreen() {
               style={{
                 position: 'absolute',
                 right: 20, 
-                bottom: isActive ? 60 : 40,
+                bottom: 60,
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 20,
