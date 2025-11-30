@@ -79,17 +79,17 @@ const TrackingService = {
         console.log('[TrackingService] (JS) posição:', pos.coords);
         const { latitude, longitude } = pos.coords;
 
-        await api.post("localizacao/", pos.coords);
+        await api.post('localizacao/', pos.coords);
 
-        await api.post("geofencing/", {
+        await api.post('geofencing/', {
           latitude,
-          longitude
+          longitude,
         });
       },
       err => console.log('[WatchPosition-JS] erro:', err),
       {
         enableHighAccuracy: true,
-        distanceFilter: 10,
+        distanceFilter: 0,
         interval: 5000,
         fastestInterval: 3000,
       },
