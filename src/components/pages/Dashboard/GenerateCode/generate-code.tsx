@@ -50,20 +50,18 @@ export default function GenerateCode() {
     <View style={styles.container}>
       {usuario.is_amparado ? (
         <View style={styles.wrapperAmparado}>
-          {!!codigoAmp && (
-            <View style={styles.codigoBox}>
-              <View style={styles.contentRow}>
-                <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
+          <View style={styles.codigoBox}>
+            <View style={styles.contentRow}>
+              <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
 
-                <TouchableOpacity
-                  onPress={() => ClipboardModule.copy(codigoAmp)}
-                  style={[styles.iconButton]}
-                >
-                  <ClipBoard size={18} color={colors.white} />
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                onPress={() => ClipboardModule.copy(codigoAmp)}
+                style={[styles.iconButton]}
+              >
+                <ClipBoard size={18} color={colors.white} />
+              </TouchableOpacity>
             </View>
-          )}
+          </View>
 
           <View style={styles.textWrapper}>
             <Texto style={styles.text}>
@@ -92,6 +90,10 @@ export default function GenerateCode() {
               'Enviar código'
             )}
           </ButtonCore>
+          <Texto style={styles.text}>
+            Emita o código de vinculação no celular do amparado. Após a geração
+            do código, insira o código para realizar a vinculação.
+          </Texto>
         </View>
       )}
     </View>
@@ -142,11 +144,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   wrapperNaoAmparado: {
-    marginTop: 100,
+    height: '100%',
+    justifyContent: 'center',
+    marginTop: 40,
+    gap: 40,
     width: '100%',
   },
   botaoEnviar: {
     width: '100%',
-    marginTop: 10,
   },
 });
