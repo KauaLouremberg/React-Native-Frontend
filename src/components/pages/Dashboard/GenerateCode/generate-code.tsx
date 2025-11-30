@@ -1,6 +1,11 @@
 import { Clipboard as ClipBoard } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { NativeModules, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  NativeModules,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../../core/constants/colors';
 import { ButtonCore } from '../../../buttons/button-core';
@@ -19,10 +24,12 @@ export default function GenerateCode() {
 
   const createCodigo = () => {
     api
-      .get('ampcodigo/')
+      .get('ampcodigo/?code=true')
       .then(res => setCodigoAmp(res.data))
       .catch(err => console.error('ocorreu um erro', err));
   };
+
+  console.log('Código: ', codigoAmp);
 
   const enviaCodigo = () => {
     setIsLoadingSendCode(false);
@@ -34,10 +41,11 @@ export default function GenerateCode() {
   };
 
   useEffect(() => {
-    if (usuario.is_amparado) {
+    if (usuario.is_amparado || !codigoAmp) {
       createCodigo();
     }
-  }, [usuario.is_amparado]);
+  }, [usuario.is_amparado, codigoAmp]);
+
   return (
     <View style={styles.container}>
       {usuario.is_amparado ? (
@@ -46,13 +54,24 @@ export default function GenerateCode() {
             <View style={styles.codigoBox}>
               <View style={styles.contentRow}>
                 <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
-                
-                <TouchableOpacity onPress={() => ClipboardModule.copy(codigoAmp)} style={[styles.iconButton]}>
+
+                <TouchableOpacity
+                  onPress={() => ClipboardModule.copy(codigoAmp)}
+                  style={[styles.iconButton]}
+                >
                   <ClipBoard size={18} color={colors.white} />
                 </TouchableOpacity>
               </View>
             </View>
           )}
+
+          <View style={styles.textWrapper}>
+            <Texto style={styles.text}>
+              Este código é um código de vinculação. Copie o código, e no
+              celular do responsável, insira o código para realizar a
+              vinculação.
+            </Texto>
+          </View>
         </View>
       ) : (
         <View style={styles.wrapperNaoAmparado}>
@@ -83,23 +102,22 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     paddingHorizontal: 15,
+    flex: 1,
   },
   wrapperAmparado: {
     justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
   },
   codigoBox: {
     backgroundColor: colors.primaryLight,
-    borderRadius: 999,
+    borderRadius: '100%',
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 80,
-    paddingHorizontal: 45, 
+    paddingHorizontal: 45,
   },
   contentRow: {
     flexDirection: 'row',
@@ -113,6 +131,15 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     padding: 0,
+  },
+  textWrapper: {
+    position: 'absolute',
+    bottom: 40,
+    width: '100%',
+    alignItems: 'center',
+  },
+  text: {
+    textAlign: 'center',
   },
   wrapperNaoAmparado: {
     marginTop: 100,
