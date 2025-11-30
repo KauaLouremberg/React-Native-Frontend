@@ -8,6 +8,7 @@ export default function SpinningIcon({
   size = 24,
   color = colors.primary,
   style,
+  text = true,
 }: any) {
   const spinValue = useRef(new Animated.Value(0)).current;
 
@@ -50,9 +51,11 @@ export default function SpinningIcon({
       >
         <LoaderCircle size={size * 1.2} color={color} />
       </Animated.View>
-      <Texto style={{ color: colors.heading }}>
-        Estamos preparando o sistema para você!
-      </Texto>
+      {text ? (
+        <Texto style={{ color: colors.heading }}>
+          Estamos preparando o sistema para você!
+        </Texto>
+      ): null}
     </Animated.View>
   );
 }

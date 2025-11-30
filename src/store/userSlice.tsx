@@ -5,6 +5,7 @@ const initialState = {
   nome: '',
   is_amparado: false,
   token: null,
+  has_perfil: false
 };
 
 const userSlice = createSlice({
@@ -12,17 +13,14 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action) => {
-      const { id, nome, is_amparado, token } = action.payload;
-      state.id = id;
-      state.nome = nome;
-      state.token = token;
-      state.is_amparado = is_amparado
+      Object.assign(state, action.payload);
     },
     clearUser: (state) => {
       state.id = null;
       state.nome = '';
       state.token = null;
       state.is_amparado = false;
+      state.has_perfil = false;
     },
   },
 });

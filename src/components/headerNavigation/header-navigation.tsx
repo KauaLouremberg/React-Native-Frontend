@@ -8,6 +8,7 @@ type TabDefinition = {
   title: string;
   component?: React.ComponentType<any>;
   render?: () => React.ReactNode;
+  disabled?: boolean;
   children?: React.ReactNode;
   onPress?: () => void;
 };
@@ -16,6 +17,7 @@ type Props = {
   title?: string;
   tabs: TabDefinition[];
   initialTabKey?: string;
+  variant?: string;
   onTabChange?: (key: string) => void;
 };
 
@@ -23,6 +25,7 @@ export function HeaderNavigation({
   title,
   tabs,
   initialTabKey,
+  variant,
   onTabChange,
 }: Props) {
   const initialIndex = initialTabKey
@@ -34,7 +37,7 @@ export function HeaderNavigation({
     const tab = tabs[index];
     setActiveIndex(index);
     tab.onPress && tab.onPress();
-    onTabChange && onTabChange(tab.key);
+    onTabChange ? onTabChange(tab.key) : null;
   }
 
   const ActiveComponent = tabs[activeIndex]?.component;
@@ -44,27 +47,31 @@ export function HeaderNavigation({
       {title ? <Text style={styles.title}>{title}</Text> : null}
 
       <View style={styles.tabsRow}>
-        {tabs.map((tab, i) => (
-          <TouchableOpacity
-            key={tab.key}
-            onPress={() => handlePress(i)}
-            style={[
-              styles.tabButton,
-              i !== tabs.length - 1 && { marginRight: 8 },
-              activeIndex === i && styles.tabButtonActive,
-            ]}
-            accessibilityRole="button"
-          >
-            <Text
+        {variant !== "unique" ? (
+          <>
+          {tabs.map((tab, i) => (
+            <TouchableOpacity
+              key={tab.key}
+              disabled={tab.disabled}
+              onPress={() => handlePress(i)}
               style={[
-                styles.tabText,
-                activeIndex === i && styles.tabTextActive,
+                styles.tabButton,
+                i !== tabs.length - 1 && { marginRight: 8 },
+                activeIndex === i && styles.tabButtonActive,
               ]}
+              accessibilityRole="button"
             >
-              {tab.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.tabText,
+                  activeIndex === i && styles.tabTextActive,
+                ]}
+              >
+                {tab.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </>) : null}
       </View>
 
       <View style={styles.content}>

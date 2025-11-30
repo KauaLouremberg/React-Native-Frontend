@@ -11,6 +11,7 @@ const TrackingService = {
   async startNative() {
     try {
       const token = await AsyncStorage.getItem('accessToken');
+
       if (!token) {
         console.log('[TrackingService] Sem token para iniciar native service');
         return;
@@ -74,22 +75,21 @@ const TrackingService = {
     }
 
     this.watchId = Geolocation.watchPosition(
-      pos => {
+      async pos => {
         console.log('[TrackingService] (JS) posição:', pos.coords);
+        const { latitude, longitude } = pos.coords;
 
-        api
-          .post('localizacao/', pos.coords)
-          .then(res => {
-            console.info('Coordenadas enviadas: ', pos.coords, res);
-          })
-          .catch(err => {
-            console.error('Ocorreu um erro', err);
-          });
+        await api.post("localizacao/", pos.coords);
+
+        await api.post("geofencing/", {
+          latitude,
+          longitude
+        });
       },
       err => console.log('[WatchPosition-JS] erro:', err),
       {
         enableHighAccuracy: true,
-        distanceFilter: 0,
+        distanceFilter: 10,
         interval: 5000,
         fastestInterval: 3000,
       },

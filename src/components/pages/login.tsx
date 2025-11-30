@@ -1,9 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Globe, InfoIcon, User } from 'lucide-react-native';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import { colors } from '../../core/constants/colors';
 import { useLoginRequestMutation } from '../../core/http/react-query/login';
 import { ActionButtonInteface } from '../../core/interface/action-button-interface';
@@ -12,6 +11,7 @@ import { loginValidationSchema } from '../../core/models/validation-schemas/logi
 import { loginStyle } from '../../styles/login/login-style';
 import { ActionButton } from '../buttons/action-button';
 import { ButtonCore } from '../buttons/button-core';
+import SpinningIcon from '../ElementosForm/SpinningIcon';
 import { ToastNotify } from '../ElementosForm/Toast';
 import { Input } from '../input/input';
 import { Texto } from '../texto';
@@ -43,14 +43,6 @@ export default function Login({ navigation }: any) {
       password: '',
     },
   });
-
-  const token = useSelector((state: any) => state.user.token)
-
-  useEffect(() => {
-    if (token) {
-      navigation.replace("MainTabs");
-    }
-  }, [token])
 
   const { loginRequestAsync, isLoginRequesting } = useLoginRequestMutation({
     onSuccess: () => {
@@ -150,7 +142,12 @@ export default function Login({ navigation }: any) {
             onPress={handleSubmit(onSubmit)}
             disabled={isLoginRequesting}
           >
-            Entrar
+            {
+              isLoginRequesting
+              ? <SpinningIcon text={false} color="white"/>
+              :
+              "Entrar"
+            }
           </ButtonCore>
         </View>
 
