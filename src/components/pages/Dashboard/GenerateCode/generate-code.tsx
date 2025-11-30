@@ -1,6 +1,11 @@
 import { Clipboard as ClipBoard } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { NativeModules, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  NativeModules,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../../core/constants/colors';
 import { ButtonCore } from '../../../buttons/button-core';
@@ -12,94 +17,126 @@ import { Texto } from '../../../texto';
 export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
-  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(false);
+  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(true);
   const { ClipboardModule } = NativeModules;
 
   const usuario = useSelector((state: any) => state.user);
 
   const createCodigo = () => {
+    setIsLoadingSendCode(true);
     api
-      .get('ampcodigo/')
+      .get('ampcodigo/?code=true')
       .then(res => setCodigoAmp(res.data))
-      .catch(err => console.error('ocorreu um erro', err));
+      .catch(err => console.error('ocorreu um erro', err))
+      .finally(() => setIsLoadingSendCode(false));
   };
 
+  console.log('Código: ', codigoAmp);
+
   const enviaCodigo = () => {
-    setIsLoadingSendCode(false);
+    setIsLoadingSendCode(true);
     api
       .post('responsavel/', { id: codigoEnvio })
       .then(res => console.info('enviado com sucesso', res))
       .catch(err => console.error('algo deu errado', err))
-      .finally(() => setIsLoadingSendCode(true));
+      .finally(() => setIsLoadingSendCode(false));
   };
 
   useEffect(() => {
-    if (usuario.is_amparado) {
+    if (usuario.is_amparado || !codigoAmp) {
       createCodigo();
     }
-  }, [usuario.is_amparado]);
+  }, [usuario.is_amparado, codigoAmp]);
+
   return (
     <View style={styles.container}>
-      {usuario.is_amparado ? (
-        <View style={styles.wrapperAmparado}>
-          {!!codigoAmp && (
-            <View style={styles.codigoBox}>
-              <View style={styles.contentRow}>
-                <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
-                
-                <TouchableOpacity onPress={() => ClipboardModule.copy(codigoAmp)} style={[styles.iconButton]}>
-                  <ClipBoard size={18} color={colors.white} />
-                </TouchableOpacity>
+      {isLoadingSendCode ? (
+        <>
+          <View style={styles.spinner}>
+            <SpinningIcon color={colors.primary} size={40} />
+          </View>
+        </>
+      ) : (
+        <>
+          {usuario.is_amparado ? (
+            <View style={styles.wrapperAmparado}>
+              <View style={styles.codigoBox}>
+                <View style={styles.contentRow}>
+                  <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
+
+                  <TouchableOpacity
+                    onPress={() => ClipboardModule.copy(codigoAmp)}
+                    style={[styles.iconButton]}
+                  >
+                    <ClipBoard size={18} color={colors.white} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.textWrapper}>
+                <Texto style={styles.text}>
+                  Este código é um código de vinculação. Copie o código, e no
+                  celular do responsável, insira o código para realizar a
+                  vinculação.
+                </Texto>
               </View>
             </View>
+          ) : (
+            <View style={styles.wrapperNaoAmparado}>
+              <Input
+                label="Enviar codigo (responsavel)"
+                placeholder="Digite o codigo"
+                value={codigoEnvio}
+                onChangeText={setCodigoEnvio}
+              />
+              <ButtonCore
+                disabled={isLoadingSendCode}
+                onPress={() => enviaCodigo()}
+                style={styles.botaoEnviar}
+              >
+                {isLoadingSendCode ? (
+                  <SpinningIcon text={false} color="white" />
+                ) : (
+                  'Enviar código'
+                )}
+              </ButtonCore>
+              <Texto style={styles.text}>
+                Emita o código de vinculação no celular do amparado. Após a
+                geração do código, insira o código para realizar a vinculação.
+              </Texto>
+            </View>
           )}
-        </View>
-      ) : (
-        <View style={styles.wrapperNaoAmparado}>
-          <Input
-            label="Enviar codigo (responsavel)"
-            placeholder="Digite o codigo"
-            value={codigoEnvio}
-            onChangeText={setCodigoEnvio}
-          />
-          <ButtonCore
-            disabled={isLoadingSendCode}
-            onPress={() => enviaCodigo()}
-            style={styles.botaoEnviar}
-          >
-            {isLoadingSendCode ? (
-              <SpinningIcon text={false} color="white" />
-            ) : (
-              'Enviar código'
-            )}
-          </ButtonCore>
-        </View>
+        </>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  spinner: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     width: '100%',
     paddingHorizontal: 15,
+    flex: 1,
   },
   wrapperAmparado: {
     justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
   },
   codigoBox: {
     backgroundColor: colors.primaryLight,
-    borderRadius: 999,
+    borderRadius: '100%',
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 80,
-    paddingHorizontal: 45, 
+    paddingHorizontal: 45,
   },
   contentRow: {
     flexDirection: 'row',
@@ -114,12 +151,23 @@ const styles = StyleSheet.create({
   iconButton: {
     padding: 0,
   },
+  textWrapper: {
+    position: 'absolute',
+    bottom: 40,
+    width: '100%',
+    alignItems: 'center',
+  },
+  text: {
+    textAlign: 'center',
+  },
   wrapperNaoAmparado: {
-    marginTop: 100,
+    height: '100%',
+    justifyContent: 'center',
+    marginTop: 40,
+    gap: 40,
     width: '100%',
   },
   botaoEnviar: {
     width: '100%',
-    marginTop: 10,
   },
 });
