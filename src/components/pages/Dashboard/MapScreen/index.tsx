@@ -1,4 +1,4 @@
-import { LocateFixed, MapPin, MapPinPlus, MapPinPlusInside, MapPinX } from 'lucide-react-native';
+import { LocateFixed, MapPin, MapPinPen, MapPinPlus, MapPinPlusInside, MapPinX } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
@@ -9,6 +9,7 @@ import { enviarNotificacao } from '../../../../notifications/send_notification';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
 import { ToastNotify } from '../../../ElementosForm/Toast';
+import { Input } from '../../../input/input';
 import { requestLocationPermission } from '../../../PermissionComponent';
 import { Texto } from '../../../texto';
 
@@ -27,6 +28,12 @@ export default function MapScreen() {
   const [selectedCenter, setSelectedCenter] = useState<any>(null);
   const [radius, setRadius] = useState(10);
   const [firstTime, setFirstTime] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [valueRadius, setValueRadius] = useState();
+  const [nomeValue, setNomeValue] = useState('Area Segura');
+  const [nome, setNome] = useState('Area Segura');
+  console.log(radius, 'raio')
+  console.log(valueRadius, 'valueRadius')
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -132,12 +139,6 @@ export default function MapScreen() {
     );
   };
 
-  // const handleShowMap = async () => {
-  //   if (!showMap) await initLocation();
-  //   setShowMap(true);
-  // };
-  
-
   const handleMapPress = (e: any) => {
   const { latitude, longitude } = e.nativeEvent.coordinate;
 
@@ -185,7 +186,8 @@ export default function MapScreen() {
       const res = await api.post("areas/", {
         center_lat: selectedCenter.latitude,
         center_lng: selectedCenter.longitude,
-        radius
+        radius,
+        nome: nomeValue
       });
 
       setAreas(prev => [...prev, {
@@ -241,6 +243,7 @@ export default function MapScreen() {
         </ButtonCore>
       ) : (
         <>
+          {coordenadas || region ? (
             <MapView
               provider={PROVIDER_GOOGLE}
               ref={mapRef}
@@ -288,6 +291,8 @@ export default function MapScreen() {
                 </Marker>
               )}
             </MapView>
+          ) : null}
+            
 
           {isFullScreen ? (
             <>
@@ -307,6 +312,76 @@ export default function MapScreen() {
                 Nenhuma localização recebida!
               </Texto>
             )}
+
+            {isOpen ? (
+                <View 
+                  style={{
+                    position: "absolute",
+                    top: "30%",
+                    alignSelf: "center",
+                    zIndex: 999,
+                    backgroundColor: colors.background,
+                    borderWidth: 0.5,
+                    padding: 10,
+                    borderRadius: 10,
+                    gap: 30
+                  }}
+                >
+
+                  <Input 
+                    label='Nome da Área Segura' 
+                    variant='form' 
+                    inputMode={'text'}
+                    value={nomeValue}
+                    onChangeText={setNomeValue}
+                    maxLength={255} 
+                    style={{ width: 380, height: 40 }}
+
+                   />
+
+                  <Input 
+                    label='Tamanho do Raio das Áreas Seguras (M)' 
+                    variant='form'
+                    inputMode={'numeric'}
+                    value={valueRadius}
+                    onChangeText={setValueRadius as any}
+                    maxLength={4} 
+                    style={{ width: 380, height: 40 }}
+
+                   />
+
+                   <TouchableOpacity onPress={() => {
+                      setRadius(Number(valueRadius));
+                      setNome(nomeValue);
+                      setIsOpen(false);
+                      ToastNotify({
+                        type: 'success',
+                        title: 'Sucesso!',
+                        message: 'Configuracao salva com sucesso!',
+                      });
+
+                    }} style={{
+                      backgroundColor: colors.primaryLight,
+                      borderRadius: 8,
+                      height: 35,
+                      justifyContent: 'center'
+                    }}
+                    >
+                      <View style={{alignContent: 'center'}}>
+                        <Texto
+                          style={{
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            color: colors.white,
+                          }}
+                        >
+                          Salvar  
+                        </Texto>
+                      </View>
+                   </TouchableOpacity>
+                </View>
+              ): null}
 
             {drawingArea && (
               <Texto
@@ -368,21 +443,6 @@ export default function MapScreen() {
                 </View>
               </TouchableOpacity>
 
-              {/* <TouchableOpacity onPress={() => setIsFullScreen(false)}>
-                <View style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 60,
-                  borderWidth: 1,
-                  borderColor: colors.white,
-                  backgroundColor: colors.primaryLight,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <Scan color={colors.white} />
-                </View>
-              </TouchableOpacity> */}
-
               <TouchableOpacity onPress={() => user.is_amparado ? sendNotification(userType.responsavel_id) : 
                 ToastNotify({
                   type: "error",
@@ -405,6 +465,35 @@ export default function MapScreen() {
               </TouchableOpacity>
             </View>
 
+            <View
+              style={{
+                position: 'absolute',
+                left: 20,
+                bottom: 40,
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 20,
+                zIndex: 999
+              }}
+            >
+
+              <TouchableOpacity onPress={() => setIsOpen(!isOpen)}>
+                <View style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 60,
+                  borderWidth: 1,
+                  borderColor: colors.white,
+                  backgroundColor: colors.primaryLight,
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <MapPinPen color={colors.white} />
+                </View>
+              </TouchableOpacity>
+
+            </View>
+
             <View style={{
                     position: "absolute",
                     bottom: 30,
@@ -413,10 +502,11 @@ export default function MapScreen() {
                   }}
             >
               {drawingArea && selectedCenter && (<>
-              <View style={{
-                flexDirection: 'row',
-                gap: 25
-              }}>
+                <View style={{
+                  flexDirection: 'row',
+                  gap: 25
+                }}
+                >
                 <TouchableOpacity onPress={() => saveArea()}>
                   <View style={{
                     width: 130,
@@ -430,7 +520,7 @@ export default function MapScreen() {
                     flexDirection: 'row',
                     gap: 5
                   }}>
-                    <MapPinPlus style={{}} color={colors.white}  />
+                    <MapPinPlus color={colors.white}  />
                     <Texto style={{color: colors.white, fontWeight: 'bold'}}> 
                       Salvar
                     </Texto>
