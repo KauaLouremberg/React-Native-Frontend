@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../core/constants/colors';
 import { POPPINS } from '../../core/constants/poppins';
 
-type TabDefinition = {
+export type TabDefinition = {
   key: string;
   title: string;
   component?: React.ComponentType<any>;
@@ -47,31 +47,32 @@ export function HeaderNavigation({
       {title ? <Text style={styles.title}>{title}</Text> : null}
 
       <View style={styles.tabsRow}>
-        {variant !== "unique" ? (
+        {variant !== 'unique' ? (
           <>
-          {tabs.map((tab, i) => (
-            <TouchableOpacity
-              key={tab.key}
-              disabled={tab.disabled}
-              onPress={() => handlePress(i)}
-              style={[
-                styles.tabButton,
-                i !== tabs.length - 1 && { marginRight: 8 },
-                activeIndex === i && styles.tabButtonActive,
-              ]}
-              accessibilityRole="button"
-            >
-              <Text
+            {tabs.map((tab, i) => (
+              <TouchableOpacity
+                key={tab.key}
+                disabled={tab.disabled}
+                onPress={() => handlePress(i)}
                 style={[
-                  styles.tabText,
-                  activeIndex === i && styles.tabTextActive,
+                  styles.tabButton,
+                  i !== tabs.length - 1 && { marginRight: 8 },
+                  activeIndex === i && styles.tabButtonActive,
                 ]}
+                accessibilityRole="button"
               >
-                {tab.title}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </>) : null}
+                <Text
+                  style={[
+                    styles.tabText,
+                    activeIndex === i && styles.tabTextActive,
+                  ]}
+                >
+                  {tab.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </>
+        ) : null}
       </View>
 
       <View style={styles.content}>

@@ -24,19 +24,24 @@ import { safeAreaStyle } from './styles/safe-area/safe-area-style';
 
 const Stack = createStackNavigator();
 
-export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'Configuracoes'];
+export const SCREEN_ORDER = [
+  'Login',
+  'Register',
+  'Dashboard',
+  'Mapa',
+  'Configuracoes',
+];
 
 let currentState = AppState.currentState;
 
-AppState.addEventListener("change", (nextState) => {
-
-  if (nextState === "background") {
-    console.log("App em background → iniciar serviço nativo");
+AppState.addEventListener('change', nextState => {
+  if (nextState === 'background') {
+    console.log('App em background → iniciar serviço nativo');
     TrackingService.startNative();
   }
 
-  if (currentState === "background" && nextState === "active") {
-    console.log("App voltou ao foreground → parar serviço nativo");
+  if (currentState === 'background' && nextState === 'active') {
+    console.log('App voltou ao foreground → parar serviço nativo');
     TrackingService.stopNative();
   }
 
@@ -65,67 +70,67 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      console.log("Notificação recebida em foreground:", remoteMessage);
+      console.log('Notificação recebida em foreground:', remoteMessage);
 
       await notifee.displayNotification({
         title: remoteMessage.notification?.title || 'Nova Notificação',
-        body: remoteMessage.notification?.body || 'Você recebeu uma nova mensagem.',
+        body:
+          remoteMessage.notification?.body || 'Você recebeu uma nova mensagem.',
         android: {
           channelId: 'amparo_channel',
           importance: AndroidImportance.HIGH,
           pressAction: { id: 'default' },
-          smallIcon: 'ic_location'
+          smallIcon: 'ic_location',
         },
       });
     });
 
     return unsubscribe;
-  }, [messaging]);
-
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView style={Gesture}>
-          <SafeAreaView style={SafeArea} edges={['bottom', 'left', 'right']}>
-            <KeyboardAvoidingView
-              style={Keyboard}
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            >
-              <NavigationContainer>
-                <Stack.Navigator
-                  initialRouteName={'Login'}
-                  screenOptions={directionTransition(SCREEN_ORDER)}
-                >
-                  <Stack.Screen
-                    name="Login"
-                    component={Login}
-                    options={{ headerShown: false }}
-                  />
+      <GestureHandlerRootView style={Gesture}>
+        <SafeAreaView style={SafeArea} edges={['bottom', 'left', 'right']}>
+          <KeyboardAvoidingView
+            style={Keyboard}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          >
+            <NavigationContainer>
+              <Stack.Navigator
+                initialRouteName={'Login'}
+                screenOptions={directionTransition(SCREEN_ORDER)}
+              >
+                <Stack.Screen
+                  name="Login"
+                  component={Login}
+                  options={{ headerShown: false }}
+                />
 
-                  <Stack.Screen
-                    name="Register"
-                    component={Register}
-                    options={{ headerShown: false }}
-                  />
+                <Stack.Screen
+                  name="Register"
+                  component={Register}
+                  options={{ headerShown: false }}
+                />
 
-                  <Stack.Screen
-                    name="Amparado-Register"
-                    component={Amparado}
-                    options={{ headerShown: false}}
-                  />
-                  
-                  <Stack.Screen
-                    name="MainTabs"
-                    component={MainTabs}
-                    options={{ headerShown: false }}
-                  />
-                </Stack.Navigator>
-              </NavigationContainer>
+                <Stack.Screen
+                  name="Amparado-Register"
+                  component={Amparado}
+                  options={{ headerShown: false }}
+                />
 
-              <Toast />
-            </KeyboardAvoidingView>
-          </SafeAreaView>
-        </GestureHandlerRootView>
+                <Stack.Screen
+                  name="MainTabs"
+                  component={MainTabs}
+                  options={{ headerShown: false }}
+                />
+              </Stack.Navigator>
+            </NavigationContainer>
+
+            <Toast />
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </GestureHandlerRootView>
     </QueryClientProvider>
   );
 }
