@@ -3,10 +3,32 @@ import { NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import api from '../../../conexao/api';
 
+function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number) {
+  function toRad(v: any) {
+    return (v * Math.PI) / 180;
+  }
+
+  const R = 6371e3;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
 const { LocationModule } = NativeModules;
 
 const TrackingService = {
   watchId: null as any,
+  lastPosition: null as any,
 
   async startNative() {
     try {
@@ -70,32 +92,43 @@ const TrackingService = {
   },
 
   startWatchPosition() {
-    if (this.watchId) {
-      Geolocation.clearWatch(this.watchId);
-    }
-
     this.watchId = Geolocation.watchPosition(
       async pos => {
-        console.log('[TrackingService] (JS) posição:', pos.coords);
         const { latitude, longitude } = pos.coords;
 
-        await api.post('localizacao/', pos.coords);
+        if (!this.lastPosition) {
+          this.lastPosition = { latitude, longitude };
+        }
 
-        await api.post('geofencing/', {
+        const distancia = calcularDistancia(
+          this.lastPosition.latitude,
+          this.lastPosition.longitude,
           latitude,
-          longitude,
-        });
+          longitude
+        );
+
+        console.log("[TrackingService] Distância desde última posição:", distancia);
+
+        if (distancia >= 10) {
+          console.log("[TrackingService] Movimento detectado → ENVIANDO");
+
+          await api.post("localizacao/", pos.coords);
+          await api.post("geofencing/", { latitude, longitude });
+
+          this.lastPosition = { latitude, longitude };
+        } else {
+          console.log("[TrackingService] Movimento insuficiente → ignorado");
+        }
       },
-      err => console.log('[WatchPosition-JS] erro:', err),
+      err => console.log("[WatchPosition-JS] erro:", err),
       {
         enableHighAccuracy: true,
         distanceFilter: 0,
         interval: 5000,
         fastestInterval: 3000,
-      },
+      }
     );
 
-    console.log('[TrackingService] watchPosition (JS) iniciado');
   },
 
   stop() {

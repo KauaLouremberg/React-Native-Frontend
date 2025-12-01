@@ -16,7 +16,9 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 import { useEffect } from 'react';
 import { MainTabs } from './components/CustomTabBar/MainTabs';
 import Amparado from './components/pages/Amparado';
+import AuthLoading from './components/pages/AuthLoading';
 import TrackingService from './components/pages/Dashboard/MapScreen/trackingService';
+import { Requisitions } from './components/PagesStack';
 import { directionTransition } from './components/TabNavigator/transition';
 import { gestureStyle } from './styles/gesture/gesture-style';
 import { keyboardStyle } from './styles/keyboard/keyboard-style';
@@ -24,7 +26,7 @@ import { safeAreaStyle } from './styles/safe-area/safe-area-style';
 
 const Stack = createStackNavigator();
 
-export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'Configuracoes'];
+export const SCREEN_ORDER = ['AuthLoading', 'Login', 'Register', 'Dashboard', 'Mapa', 'Configuracoes'];
 
 let currentState = AppState.currentState;
 
@@ -93,9 +95,16 @@ function App() {
             >
               <NavigationContainer>
                 <Stack.Navigator
-                  initialRouteName={'Login'}
+                  initialRouteName={'AuthLoading'}
                   screenOptions={directionTransition(SCREEN_ORDER)}
                 >
+
+                  <Stack.Screen
+                    name="AuthLoading"
+                    component={AuthLoading}
+                    options={{ headerShown: false }}
+                  />
+
                   <Stack.Screen
                     name="Login"
                     component={Login}
@@ -105,6 +114,12 @@ function App() {
                   <Stack.Screen
                     name="Register"
                     component={Register}
+                    options={{ headerShown: false }}
+                  />
+
+                  <Stack.Screen
+                    name="Requisitions"
+                    component={Requisitions}
                     options={{ headerShown: false }}
                   />
 

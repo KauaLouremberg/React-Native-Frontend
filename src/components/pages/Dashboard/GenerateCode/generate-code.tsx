@@ -17,24 +17,39 @@ import { Texto } from '../../../texto';
 export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
   const [codigoEnvio, setCodigoEnvio] = useState<any>();
-  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(true);
+  const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(false);
   const { ClipboardModule } = NativeModules;
 
   const usuario = useSelector((state: any) => state.user);
 
   const createCodigo = () => {
     setIsLoadingSendCode(true);
-    api
-      .get('ampcodigo/?code=true')
-      .then(res => setCodigoAmp(res.data))
-      .catch(err => console.error('ocorreu um erro', err))
-      .finally(() => setIsLoadingSendCode(false));
-  };
 
-  console.log('Código: ', codigoAmp);
+    try {
+      api.get("ampcodigo/?code=True")
+      .then((res) => {
+        setCodigoAmp(res.data);
+      })
+      .catch((err) => {
+        api.get("ampcodigo/")
+        .then((res) => {
+          setCodigoAmp(res.data);
+          setIsLoadingSendCode(false);
+        }
+      )
+      .catch((error) => {
+        console.warn(error);
+        setIsLoadingSendCode(false);
+      })
+      })
+    } catch {
+      setIsLoadingSendCode(false);
+    }
+  }
 
   const enviaCodigo = () => {
     setIsLoadingSendCode(true);
+
     api
       .post('responsavel/', { id: codigoEnvio })
       .then(res => console.info('enviado com sucesso', res))
@@ -43,7 +58,7 @@ export default function GenerateCode() {
   };
 
   useEffect(() => {
-    if (usuario.is_amparado || !codigoAmp) {
+    if (usuario.is_amparado && !codigoAmp) {
       createCodigo();
     }
   }, [usuario.is_amparado, codigoAmp]);

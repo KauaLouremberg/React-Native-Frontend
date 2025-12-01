@@ -147,6 +147,10 @@ export default function MapScreen() {
       return;
     }
 
+    if (!user.is_amparado) {
+      return;
+    }
+
     const newMarker = {
       id: Date.now(),
       latitude,
@@ -154,11 +158,6 @@ export default function MapScreen() {
     };
 
     setMarkers(prev => [...prev, newMarker] as any);
-  };
-
-  const handleDragEnd = (e: any) => {
-    const { latitude, longitude } = e.nativeEvent.coordinate;
-    setMarkers({ latitude, longitude } as any);
   };
   
   const saveArea = async () => {
@@ -564,21 +563,24 @@ export default function MapScreen() {
               </TouchableOpacity>
               ) : null}
               
-              <TouchableOpacity onPress={() => saveMarkersToBackend()}>
-                <View style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 60,
-                  borderWidth: 1,
-                  borderColor: colors.white,
-                  backgroundColor: colors.primaryLight,
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <MapPinned color={colors.white} />
-                </View>
-              </TouchableOpacity>
-
+              {user.is_amparado ? (
+                <TouchableOpacity onPress={() => saveMarkersToBackend()}>
+                  <View style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 60,
+                    borderWidth: 1,
+                    borderColor: colors.white,
+                    backgroundColor: colors.primaryLight,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <MapPinned color={colors.white} />
+                  </View>
+                </TouchableOpacity>
+              ): null}
+              
+              {!user.is_amparado ? (
               <TouchableOpacity onPress={() => setDrawingArea(!drawingArea)}>
                 <View style={{
                   width: 60,
@@ -593,7 +595,8 @@ export default function MapScreen() {
                   <MapPinPlusInside color={colors.white} />
                 </View>
               </TouchableOpacity>
-
+              ): null}
+              
               <TouchableOpacity onPress={() => user.is_amparado ? mapRef.current?.animateToRegion(region, 500) : mapRef.current?.animateToRegion(coordenadas, 500)}>
                 <View style={{
                   width: 60,
