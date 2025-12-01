@@ -8,19 +8,27 @@ import {
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../../core/constants/colors';
+import { loginStyle } from '../../../../styles/login/login-style';
 import { ButtonCore } from '../../../buttons/button-core';
 import api from '../../../conexao/api';
+import OtpInput from '../../../ElementosForm/OtpInput';
 import SpinningIcon from '../../../ElementosForm/SpinningIcon';
-import { Input } from '../../../input/input';
+import { ToastNotify } from '../../../ElementosForm/Toast';
 import { Texto } from '../../../texto';
 
 export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
-  const [codigoEnvio, setCodigoEnvio] = useState<any>();
   const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(false);
   const { ClipboardModule } = NativeModules;
+  const [isValid, setIsValid] = useState<any>();
+  const [codigoCompleto, setCodigoCompleto] = useState();
+  const [isLoading, setIsLoading] = useState(false);
 
   const usuario = useSelector((state: any) => state.user);
+
+  const {
+      title,
+    } = loginStyle;
 
   const createCodigo = () => {
     setIsLoadingSendCode(true);
@@ -51,11 +59,41 @@ export default function GenerateCode() {
     setIsLoadingSendCode(true);
 
     api
-      .post('responsavel/', { id: codigoEnvio })
-      .then(res => console.info('enviado com sucesso', res))
-      .catch(err => console.error('algo deu errado', err))
+      .post('responsavel/', { id: codigoCompleto })
+      .then(res => 
+        ToastNotify({
+          type: 'success',
+          title: 'Sucesso!',
+          message: 'Vinculo criado com sucesso!',
+          time: 2500,
+        }))
+      .catch(err => 
+        ToastNotify({
+          type: 'error',
+          title: 'Erro!',
+          message: 'Ocorreu um erro ao criar o Vinculo!',
+          time: 2500,
+        })
+      )
       .finally(() => setIsLoadingSendCode(false));
   };
+
+  const verifyCodigo = (codigo: any) => {
+    setIsLoading(true);
+
+    api
+      .get(`ampcodigo/?verify=${codigo}`)
+      .then(res => {
+        setIsValid('green');
+        setCodigoCompleto(codigo);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsValid('red')
+        setIsLoading(false);
+      });
+  };
+
 
   useEffect(() => {
     if (usuario.is_amparado && !codigoAmp) {
@@ -98,27 +136,38 @@ export default function GenerateCode() {
             </View>
           ) : (
             <View style={styles.wrapperNaoAmparado}>
-              <Input
-                label="Enviar codigo (responsavel)"
-                placeholder="Digite o codigo"
-                value={codigoEnvio}
-                onChangeText={setCodigoEnvio}
-              />
-              <ButtonCore
-                disabled={isLoadingSendCode}
-                onPress={() => enviaCodigo()}
-                style={styles.botaoEnviar}
-              >
-                {isLoadingSendCode ? (
-                  <SpinningIcon text={false} color="white" />
-                ) : (
-                  'Enviar código'
-                )}
-              </ButtonCore>
-              <Texto style={styles.text}>
-                Emita o código de vinculação no celular do amparado. Após a
-                geração do código, insira o código para realizar a vinculação.
+              <Texto style={[title, {left: 20}]}>
+                Vinculação de Amparado
               </Texto>
+              <OtpInput
+                length={6}
+                onComplete={(e: any) => {
+                  verifyCodigo(e);
+                }}
+                color={isValid}
+              />
+              <Texto style={{justifyContent: 'center', alignSelf: 'center', fontSize: 15 }}>
+                Insira o código gerado na conta do Amparado!
+              </Texto>
+              {isLoading && (
+                <View style={{position: 'absolute', marginTop: "100%", marginLeft: "45%"}}>
+                  <SpinningIcon text={false} color={colors.primaryLight} size={25} />
+                </View>
+              )}
+          
+              <View style={styles.wrapperButton}>
+                <ButtonCore
+                  disabled={isLoadingSendCode || isValid !== "green" ? true : false}
+                  onPress={() => enviaCodigo()}
+                  style={styles.botaoEnviar}
+                >
+                  {isLoadingSendCode ? (
+                    <SpinningIcon text={false} color="white" />
+                  ) : (
+                    'Enviar código'
+                  )}
+                </ButtonCore>
+              </View>
             </View>
           )}
         </>
@@ -172,15 +221,18 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
   },
+
+  wrapperButton: {
+    width: "100%",
+    paddingHorizontal: 15,
+  },
   text: {
     textAlign: 'center',
   },
   wrapperNaoAmparado: {
-    height: '100%',
-    justifyContent: 'center',
-    marginTop: 40,
-    gap: 40,
-    width: '100%',
+    flex: 1,
+    justifyContent: "space-between",
+    paddingVertical: 40,
   },
   botaoEnviar: {
     width: '100%',

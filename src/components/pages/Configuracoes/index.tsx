@@ -382,7 +382,6 @@ const Configuracoes = () => {
       />
 
       {activeTab && (
-          
           <FloatButton
             disabled={isConfigRequesting || isEnderecoRequesting ? true : false}
             onPress={activeTab !== 'endereco' ? handleSubmit(onSubmit) : enderecoHandleSubmit(onSubmitEndereco)}
