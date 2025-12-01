@@ -1,10 +1,11 @@
-import { Frown } from 'lucide-react-native';
+import { Frown, Trash } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../core/constants/colors';
 import api from '../../conexao/api';
 import SpinningIcon from '../../ElementosForm/SpinningIcon';
+import { ToastNotify } from '../../ElementosForm/Toast';
 import {
   HeaderNavigation,
   TabDefinition,
@@ -18,9 +19,12 @@ type Values = {
 
 type CardType = {
   values: Values[];
+  onDelete?: () => void
+  isLoadingDelete?: boolean
 };
 
 type MarkedType = {
+  id: number
   criado_em: string;
   latitude: string;
   longitude: string;
@@ -28,6 +32,7 @@ type MarkedType = {
 };
 
 type AreaType = {
+  id: number
   criado_em: string;
   raio: string;
   latitude: string;
@@ -48,7 +53,7 @@ function formatDateTime(dateString: string) {
   });
 }
 
-function Card({ values }: CardType) {
+function Card({ values, onDelete, isLoadingDelete }: CardType) {
   return (
     <View style={card}>
       <View>
@@ -58,6 +63,16 @@ function Card({ values }: CardType) {
           </Texto>
         ))}
       </View>
+      {
+        isLoadingDelete
+        ?
+        <SpinningIcon text={false} color='#777' style={{width: 'auto'}} size={20}/>
+        :
+        <Trash 
+          color="red"
+          onTouchEnd={onDelete}
+        />
+      }
     </View>
   );
 }
@@ -85,6 +100,7 @@ function NoValues() {
 
 function MarkedsTabContent() {
   const [marked, setMarked] = useState<MarkedType[]>([]);
+  const [deletingMarkerId, setDeletingMarkerId] = useState<number | string | null>(null);
   const usuario = useSelector((state: any) => state.user);
   const [isLoadingMarked, setIsLoadingMakerd] = useState<boolean>(true);
 
@@ -96,6 +112,34 @@ function MarkedsTabContent() {
       .catch(err => setMarked([]))
       .finally(() => setIsLoadingMakerd(false));
   };
+
+  const deleteMarker = async(id: number) => {
+    setDeletingMarkerId(id)
+    try {
+
+      await api.delete(`marcadores/${id}/`)
+
+      ToastNotify({
+        type: "success",
+        title: "Sucesso!",
+        message: "Marcador deletado com sucesso!",
+        time: 1500
+      }); 
+
+    } catch (err) {
+      console.error(err);
+
+      ToastNotify({
+        type: "error",
+        title: "Erro!",
+        message: "Ocorreu um erro ao tentar deletar o marcador!"
+      });
+    }
+    setDeletingMarkerId(null)
+
+  }
+
+
 
   useEffect(() => {
     if (usuario) {
@@ -118,7 +162,18 @@ function MarkedsTabContent() {
             { title: 'Longitude', value: item.longitude },
           ];
 
-          return <Card key={index} values={values} />;
+          return (
+            <Card 
+              key={index} 
+              values={values} 
+              onDelete={async () => {
+                if(deletingMarkerId) return
+                await deleteMarker(item.id)
+                fetchMarkeds()
+              }}
+              isLoadingDelete={deletingMarkerId === item.id}
+            />
+          );
         })}
       </ScrollView>
     ): <NoValues />}
@@ -128,6 +183,7 @@ function MarkedsTabContent() {
 function AreasTabContent() {
   const [areas, setAreas] = useState<AreaType[]>([]);
   const usuario = useSelector((state: any) => state.user);
+  const [deletingAreaId, setDeletingAreaId] = useState<number | string | null>(null);
   const [isLoadingArea, setIsLoadingArea] = useState<boolean>(true);
   const areasMarkeds = () => {
     setIsLoadingArea(true);
@@ -137,6 +193,31 @@ function AreasTabContent() {
       .catch(err => setAreas([]))
       .finally(() => setIsLoadingArea(false));
   };
+
+  const deleteArea = async(id: number | string) => {
+    setDeletingAreaId(id)
+    try {
+
+      await api.delete(`areas/${id}/`)
+
+      ToastNotify({
+        type: "success",
+        title: "Sucesso!",
+        message: "Área deletada com sucesso!",
+        time: 1500
+      }); 
+
+    } catch (err) {
+      console.error(err);
+
+      ToastNotify({
+        type: "error",
+        title: "Erro!",
+        message: "Ocorreu um erro ao tentar deletar a área!"
+      });
+    }
+    setDeletingAreaId(null)
+  }
 
   useEffect(() => {
     if (usuario) {
@@ -159,7 +240,18 @@ function AreasTabContent() {
             { title: 'Raio', value: `${item.raio} M` },
           ];
 
-          return <Card key={index} values={values} />;
+          return (
+            <Card 
+              key={index} 
+              values={values} 
+              onDelete={async () => {
+                if(deletingAreaId) return
+                await deleteArea(item.id)
+                areasMarkeds()
+              }}
+              isLoadingDelete={deletingAreaId === item.id}
+            />
+          );
         })}
       </ScrollView>
     ): <NoValues />}
@@ -207,7 +299,9 @@ const { section, sectionGap, card, spinner } = StyleSheet.create({
     borderColor: colors.border,
     padding: 16,
     borderRadius: 8,
-    flexDirection: 'column',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   spinner: {
     height: '100%',
