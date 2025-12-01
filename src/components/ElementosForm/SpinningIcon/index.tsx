@@ -1,6 +1,6 @@
 import { LoaderCircle } from 'lucide-react-native';
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, ViewStyle } from 'react-native';
 import { colors } from '../../../core/constants/colors';
 import { Texto } from '../../texto';
 
@@ -9,7 +9,12 @@ export default function SpinningIcon({
   color = colors.primary,
   style,
   text = true,
-}: any) {
+}: {
+  size?: number,
+  color?: string,
+  style?: ViewStyle,
+  text?: boolean,
+}) {
   const spinValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
