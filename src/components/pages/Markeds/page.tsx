@@ -1,3 +1,4 @@
+import { Frown } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -61,6 +62,27 @@ function Card({ values }: CardType) {
   );
 }
 
+function NoValues() {
+  return (
+    <View style={spinner}>
+      <Frown 
+        color={colors.primaryLight} 
+        size={32} 
+        style={{justifyContent: 'center', alignSelf: 'center', marginBottom: 10}}
+      />
+      <Texto 
+        style={{
+          justifyContent: 'center',
+          alignSelf: 'center', 
+          fontSize: 15,
+          color: colors.primaryLight
+        }}>
+        Não existe nenhum valor registrado!
+      </Texto>
+    </View>
+  )
+}
+
 function MarkedsTabContent() {
   const [marked, setMarked] = useState<MarkedType[]>([]);
   const usuario = useSelector((state: any) => state.user);
@@ -71,6 +93,7 @@ function MarkedsTabContent() {
     api
       .get('marcadores/')
       .then(result => setMarked(result.data))
+      .catch(err => setMarked([]))
       .finally(() => setIsLoadingMakerd(false));
   };
 
@@ -84,20 +107,22 @@ function MarkedsTabContent() {
     <View style={spinner}>
       <SpinningIcon />
     </View>
-  ) : (
-    <ScrollView style={section} contentContainerStyle={sectionGap}>
-      {marked.map((item, index) => {
-        const values: Values[] = [
-          { title: 'Nome', value: item.nome },
-          { title: 'Criado em', value: formatDateTime(item.criado_em) },
-          { title: 'Latitude', value: item.latitude },
-          { title: 'Longitude', value: item.longitude },
-        ];
+  ) : (<>
+    {marked.length > 0 ? (
+      <ScrollView style={section} contentContainerStyle={sectionGap}>
+        {marked.map((item, index) => {
+          const values: Values[] = [
+            { title: 'Nome', value: item.nome },
+            { title: 'Criado em', value: formatDateTime(item.criado_em) },
+            { title: 'Latitude', value: item.latitude },
+            { title: 'Longitude', value: item.longitude },
+          ];
 
-        return <Card key={index} values={values} />;
-      })}
-    </ScrollView>
-  );
+          return <Card key={index} values={values} />;
+        })}
+      </ScrollView>
+    ): <NoValues />}
+  </>);
 }
 
 function AreasTabContent() {
@@ -109,6 +134,7 @@ function AreasTabContent() {
     api
       .get('areas/')
       .then(result => setAreas(result.data))
+      .catch(err => setAreas([]))
       .finally(() => setIsLoadingArea(false));
   };
 
@@ -121,21 +147,24 @@ function AreasTabContent() {
     <View style={spinner}>
       <SpinningIcon />
     </View>
-  ) : (
-    <ScrollView style={section} contentContainerStyle={sectionGap}>
-      {areas.map((item, index) => {
-        const values: Values[] = [
-          { title: 'Nome', value: item.nome },
-          { title: 'Criado em', value: formatDateTime(item.criado_em) },
-          { title: 'Latitude', value: item.latitude },
-          { title: 'Longitude', value: item.longitude },
-          { title: 'Raio', value: `${item.raio} M` },
-        ];
+  ) : (<>
+    {areas.length > 0 ? (
+      <ScrollView style={section} contentContainerStyle={sectionGap}>
+        {areas.map((item, index) => {
+          const values: Values[] = [
+            { title: 'Nome', value: item.nome },
+            { title: 'Criado em', value: formatDateTime(item.criado_em) },
+            { title: 'Latitude', value: item.latitude },
+            { title: 'Longitude', value: item.longitude },
+            { title: 'Raio', value: `${item.raio} M` },
+          ];
 
-        return <Card key={index} values={values} />;
-      })}
-    </ScrollView>
-  );
+          return <Card key={index} values={values} />;
+        })}
+      </ScrollView>
+    ): <NoValues />}
+    
+  </>);
 }
 
 export function MarkedsPage() {
