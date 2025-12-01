@@ -1,11 +1,12 @@
 import { createStackNavigator } from '@react-navigation/stack';
-import { BookMarked, Home, MapPin, Settings } from "lucide-react-native";
-import { CustomTabBar } from ".";
-import Tab from "../TabNavigator";
+import { BookMarked, Home, MapPin, Settings } from 'lucide-react-native';
+import { CustomTabBar } from '.';
+import Tab from '../TabNavigator';
 
 import Configuracoes from '../pages/Configuracoes';
 import Dashboard from '../pages/Dashboard';
 import MapScreen from '../pages/Dashboard/MapScreen';
+import { MarkedsPage } from '../pages/Markeds/page';
 
 const DashboardStack = createStackNavigator();
 
@@ -37,10 +38,20 @@ export function ConfigStackScreen() {
   );
 }
 
+const MarkedsStack = createStackNavigator();
+
+export function MarkedsStackScreen() {
+  return (
+    <MarkedsStack.Navigator screenOptions={{ headerShown: false }}>
+      <MarkedsStack.Screen name="Marcacoes" component={MarkedsPage} />
+    </MarkedsStack.Navigator>
+  );
+}
+
 export function MainTabs() {
   return (
     <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={props => <CustomTabBar {...props} />}
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen
@@ -57,7 +68,7 @@ export function MainTabs() {
 
       <Tab.Screen
         name="Bookmarks"
-        component={DashboardStackScreen}
+        component={MarkedsStackScreen}
         options={{ tabBarIcon: BookMarked }}
       />
 
