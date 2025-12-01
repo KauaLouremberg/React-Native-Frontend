@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 import { MainTabs } from './components/CustomTabBar/MainTabs';
 import Amparado from './components/pages/Amparado';
 import AuthLoading from './components/pages/AuthLoading';
+import GenerateCode from './components/pages/Dashboard/GenerateCode/generate-code';
 import TrackingService from './components/pages/Dashboard/MapScreen/trackingService';
 import { Requisitions } from './components/PagesStack';
 import { directionTransition } from './components/TabNavigator/transition';
@@ -26,7 +27,7 @@ import { safeAreaStyle } from './styles/safe-area/safe-area-style';
 
 const Stack = createStackNavigator();
 
-export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'Configuracoes'];
+export const SCREEN_ORDER = ['Login', 'Register', 'Dashboard', 'Mapa', 'GenerateCode', 'Configuracoes'];
 
 let currentState = AppState.currentState;
 
@@ -125,6 +126,12 @@ function App() {
                 <Stack.Screen
                   name="Amparado-Register"
                   component={Amparado}
+                  options={{ headerShown: false }}
+                />
+
+                <Stack.Screen
+                  name="GenerateCode"
+                  component={GenerateCode}
                   options={{ headerShown: false }}
                 />
 

@@ -1,9 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
 import { zodResolver } from '@hookform/resolvers/zod';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
+import { LogOut, UserPlus } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { colors } from '../../../core/constants/colors';
 import { useConfigRequestMutation } from '../../../core/http/react-query/configuracao';
@@ -22,13 +24,18 @@ import { ToastNotify } from '../../ElementosForm/Toast';
 import { HeaderNavigation } from '../../headerNavigation/header-navigation';
 import { Input } from '../../input/input';
 
-const Configuracoes = () => {
+const Configuracoes = ({ navigation }: any) => {
   const usuario = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<'perfil' | 'endereco'>('perfil');
   const has_perfil = useSelector((state: any) => state.user.has_perfil)
 
   console.log(has_perfil)
+
+  const logout = () => {
+    AsyncStorage.removeItem('accessToken')
+    navigation.navigate('Login')
+  }
 
   const itens = [
     {label: 'Masculino', value: 'M'},
@@ -237,6 +244,42 @@ const Configuracoes = () => {
           />
         )}
       />
+      <View style={{ flexDirection: 'column', marginTop: '75%'}}>
+      <View style={{justifyContent: 'center', alignSelf: 'flex-end', flex: 1}}>
+        <TouchableOpacity 
+          onPress={() => logout()}
+          style={{ 
+            backgroundColor: colors.danger, 
+            width: 80, 
+            height: 35, 
+            bottom: 0,
+            borderRadius: 10, 
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <LogOut color={colors.white} />
+        </TouchableOpacity>
+      </View>
+      
+      {!usuario.is_amparado && (
+        <View style={{justifyContent: 'center', alignSelf: 'flex-start', flex: 1}}>
+          <TouchableOpacity 
+            onPress={() => navigation.navigate('Amparado-Register')}
+            style={{ 
+              backgroundColor: colors.primaryLight, 
+              width: 80, 
+              height: 35, 
+              bottom: 0,
+              borderRadius: 10, 
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            <UserPlus color={colors.white} />
+          </TouchableOpacity>
+        </View>)}
+      </View>
     </View>
   );
 };

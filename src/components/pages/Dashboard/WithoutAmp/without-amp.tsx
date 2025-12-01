@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Flag } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import Dashboard from '..';
 import { colors } from '../../../../core/constants/colors';
 import { POPPINS } from '../../../../core/constants/poppins';
 import { Texto } from '../../../texto';
@@ -9,10 +10,11 @@ import { Texto } from '../../../texto';
 export function WithoutAmp() {
   const navigation = useNavigation<any>();
   const user = useSelector((state: any) => state.user);
+  const userType = useSelector((state: any) => state.userType);
 
   return (
     <>
-      {user.has_perfil ? (
+      {user.has_perfil && !userType.amparado_id && !userType.responsavel_id ? (
         <View style={style.section}>
           <View style={style.container}>
             <Flag
@@ -24,7 +26,7 @@ export function WithoutAmp() {
               Você não tem nenhum amparado vinculado. Para se vincular à um
               amparado{' '}
               <Texto
-                onPress={() => navigation.navigate('Amparado-Register')}
+                onPress={() => navigation.navigate('GenerateCode')}
                 style={style.touch}
               >
                 Toque aqui
@@ -32,8 +34,10 @@ export function WithoutAmp() {
             </Texto>
           </View>
         </View>
+      ) : user.has_perfil && userType.amparado_id && userType.responsavel_id ? (
+        <Dashboard />
       ) : (
-        <View style={style.section}>
+      <View style={style.section}>
           <View style={style.container}>
             <Flag
               size={36}
@@ -50,8 +54,8 @@ export function WithoutAmp() {
               </Texto>
             </Texto>
           </View>
-        </View>
-      )}
+        </View>)
+      }
     </>
   );
 }

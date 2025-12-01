@@ -1,4 +1,4 @@
-import { Clipboard as ClipBoard } from 'lucide-react-native';
+import { Clipboard as ClipBoard, Frown } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import {
   NativeModules,
@@ -25,6 +25,7 @@ export default function GenerateCode() {
   const [isLoading, setIsLoading] = useState(false);
 
   const usuario = useSelector((state: any) => state.user);
+  const userType = useSelector((state: any) => state.userType);
 
   const {
       title,
@@ -37,6 +38,7 @@ export default function GenerateCode() {
       api.get("ampcodigo/?code=True")
       .then((res) => {
         setCodigoAmp(res.data);
+        setIsLoadingSendCode(false);
       })
       .catch((err) => {
         api.get("ampcodigo/")
@@ -60,13 +62,15 @@ export default function GenerateCode() {
 
     api
       .post('responsavel/', { id: codigoCompleto })
-      .then(res => 
+      .then(res => {
         ToastNotify({
           type: 'success',
           title: 'Sucesso!',
           message: 'Vinculo criado com sucesso!',
           time: 2500,
-        }))
+        });
+        setIsValid('');
+      })
       .catch(err => 
         ToastNotify({
           type: 'error',
@@ -91,6 +95,13 @@ export default function GenerateCode() {
       .catch(() => {
         setIsValid('red')
         setIsLoading(false);
+
+        ToastNotify({
+          type: 'error',
+          title: 'Erro!',
+          message: 'Não existe nenhum amparado com o código informado!',
+          time: 2500,
+        })
       });
   };
 
@@ -111,8 +122,28 @@ export default function GenerateCode() {
         </>
       ) : (
         <>
-          {usuario.is_amparado ? (
+        {usuario.has_perfil && userType.amparado_id && userType.responsavel_id ? 
+          (
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+              <Frown 
+                color={colors.primaryLight} 
+                size={32} 
+                style={{justifyContent: 'center', alignSelf: 'center', marginBottom: 10}}
+              />
+              <Texto 
+                style={{
+                  justifyContent: 'center',
+                  alignSelf: 'center', 
+                  fontSize: 15,
+                  color: colors.primaryLight
+                }}>
+                Tela não finalizada
+              </Texto>
+          </View>
+          ) : (<>
+            {usuario.is_amparado ? (
             <View style={styles.wrapperAmparado}>
+              
               <View style={styles.codigoBox}>
                 <View style={styles.contentRow}>
                   <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
@@ -121,7 +152,7 @@ export default function GenerateCode() {
                     onPress={() => ClipboardModule.copy(codigoAmp)}
                     style={[styles.iconButton]}
                   >
-                    <ClipBoard size={18} color={colors.white} />
+                    <ClipBoard size={20} color={colors.white} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -134,7 +165,7 @@ export default function GenerateCode() {
                 </Texto>
               </View>
             </View>
-          ) : (
+           ) : (
             <View style={styles.wrapperNaoAmparado}>
               <Texto style={[title, {left: 20}]}>
                 Vinculação de Amparado
@@ -170,6 +201,7 @@ export default function GenerateCode() {
               </View>
             </View>
           )}
+          </>)}
         </>
       )}
     </View>
@@ -200,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 80,
-    paddingHorizontal: 45,
+    paddingHorizontal: 65,
   },
   contentRow: {
     flexDirection: 'row',
@@ -211,6 +243,7 @@ const styles = StyleSheet.create({
     color: colors.white,
     textAlign: 'center',
     marginRight: 5,
+    fontSize: 18
   },
   iconButton: {
     padding: 0,
@@ -236,5 +269,6 @@ const styles = StyleSheet.create({
   },
   botaoEnviar: {
     width: '100%',
+    backgroundColor: colors.primaryLight
   },
 });

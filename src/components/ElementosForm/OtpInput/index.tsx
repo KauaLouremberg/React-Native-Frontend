@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, TextInput, useWindowDimensions, View } from "react-native";
+import { Animated, StyleSheet, TextInput, useWindowDimensions, View } from "react-native";
 
 export default function OtpInput({
   length = 6,
   onComplete,
   onChange,
-  color = ''
+  color = "#0066FF",
+  autoFocus = true,
 }: any) {
   const { width } = useWindowDimensions();
 
@@ -14,7 +15,23 @@ export default function OtpInput({
   const size = Math.min(boxSize, 60);
 
   const [values, setValues] = useState(Array(length).fill(""));
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(0);
   const inputsRef = useRef<any>([]);
+
+  const scales = useRef(
+    Array(length)
+      .fill(0)
+      .map(() => new Animated.Value(1))
+  ).current;
+
+  function animate(index: number, to: number) {
+    Animated.spring(scales[index], {
+      toValue: to,
+      useNativeDriver: true,
+      speed: 12,
+      bounciness: 6,
+    }).start();
+  }
 
   function handleChange(text: any, index: any) {
     const newValues = [...values];
@@ -45,19 +62,40 @@ export default function OtpInput({
   return (
     <View style={styles.container}>
       {Array.from({ length }).map((_, index) => (
-        <TextInput
+        <Animated.View
           key={index}
-          ref={(ref) => (inputsRef.current[index] = ref) as any}
-          style={[
-            styles.box,
-            { width: size, height: size, borderRadius: size * 0.25, borderColor: color},
-          ]}
-          value={values[index]}
-          keyboardType="numeric"
-          maxLength={1}
-          onChangeText={(t) => handleChange(t, index)}
-          onKeyPress={(e) => handleKeyPress(e, index)}
-        />
+          style={{
+            transform: [{ scale: scales[index] }],
+          }}
+        >
+          <TextInput
+            ref={(ref) => (inputsRef.current[index] = ref) as any}
+            style={[
+              styles.box,
+              {
+                width: size,
+                height: size,
+                borderRadius: size * 0.25,
+                borderColor:
+                  color,
+                borderWidth: focusedIndex === index ? 2 : 1,
+              },
+            ]}
+            value={values[index]}
+            maxLength={1}
+            autoFocus={autoFocus && index === 0}
+            onFocus={() => {
+              setFocusedIndex(index);
+              animate(index, 1.1);
+            }}
+            onBlur={() => {
+              animate(index, 1);
+              setFocusedIndex(null);
+            }}
+            onChangeText={(t) => handleChange(t, index)}
+            onKeyPress={(e) => handleKeyPress(e, index)}
+          />
+        </Animated.View>
       ))}
     </View>
   );
@@ -71,8 +109,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   box: {
-    borderWidth: 1,
-    borderColor: "#ccc",
     backgroundColor: "#fff",
     textAlign: "center",
     fontSize: 20,

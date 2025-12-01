@@ -45,7 +45,6 @@ const Amparado = ({navigation}: any) => {
           time: 2500,
         });
         reset()
-        navigation.replace("MainTabs");
       }
     })
 
@@ -134,6 +133,7 @@ const Amparado = ({navigation}: any) => {
               />
             <View style={[buttonWrapper]}>
               <ButtonCore
+                style={{backgroundColor: colors.primaryLight}}
                 onPress={handleSubmit(onSubmit)}
                 disabled={isAmparadoRequesting}
               >

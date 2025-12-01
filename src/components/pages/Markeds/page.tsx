@@ -92,7 +92,7 @@ function NoValues() {
           fontSize: 15,
           color: colors.primaryLight
         }}>
-        Não existe nenhum valor registrado!
+        Não existe nenhum registro!
       </Texto>
     </View>
   )

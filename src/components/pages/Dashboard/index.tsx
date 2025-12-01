@@ -9,6 +9,9 @@ export default function Dashboard() {
   return !user.has_perfil || (!user.is_amparado && !userType?.amparado_id) ? (
     <WithoutAmp />
   ) : (
-    <GenerateCode />
+    !userType.amparado_id && !userType.responsavel_id ?
+    <GenerateCode /> : (
+      <GenerateCode />
+    )
   );
 }
