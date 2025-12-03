@@ -458,7 +458,7 @@ export default function MapScreen() {
                     alignSelf: "center",
                     zIndex: 999,
                     width: width * 0.9,
-                    height: width * 0.,
+                    height: width * 0.6,
                     backgroundColor: colors.background,
                     borderWidth: 0.5,
                     padding: 10,
