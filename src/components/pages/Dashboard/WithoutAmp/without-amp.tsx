@@ -2,7 +2,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Flag } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import Dashboard from '..';
 import { colors } from '../../../../core/constants/colors';
 import { POPPINS } from '../../../../core/constants/poppins';
 import { Texto } from '../../../texto';
@@ -14,7 +13,6 @@ export function WithoutAmp() {
 
   return (
     <>
-      {user.has_perfil && !userType.amparado_id && !userType.responsavel_id ? (
         <View style={style.section}>
           <View style={style.container}>
             <Flag
@@ -34,28 +32,6 @@ export function WithoutAmp() {
             </Texto>
           </View>
         </View>
-      ) : user.has_perfil && userType.amparado_id && userType.responsavel_id ? (
-        <Dashboard />
-      ) : (
-      <View style={style.section}>
-          <View style={style.container}>
-            <Flag
-              size={36}
-              fill={colors.primaryLight}
-              stroke={colors.primaryLight}
-            />
-            <Texto style={style.withoutAmp}>
-              Você não tem um Perfil cadastrado. Para cadastrar um perfil{' '}
-              <Texto
-                onPress={() => navigation.navigate('Configuracoes')}
-                style={style.touch}
-              >
-                Toque aqui
-              </Texto>
-            </Texto>
-          </View>
-        </View>)
-      }
     </>
   );
 }

@@ -1,5 +1,6 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { Frown, Trash } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../core/constants/colors';
@@ -140,12 +141,27 @@ function MarkedsTabContent() {
   }
 
 
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-  useEffect(() => {
-    if (usuario) {
-      fetchMarkeds();
-    }
-  }, [usuario]);
+      const load = async () => {
+        if (!usuario) return;
+        try {
+          await fetchMarkeds();
+        } catch (err) {
+          if (!isActive) return;
+          console.warn('fetchMarkeds failed', err);
+        }
+      };
+
+      load();
+
+      return () => {
+        isActive = false;
+      };
+    }, [usuario])
+  );
 
   return isLoadingMarked ? (
     <View style={spinner}>
@@ -219,11 +235,27 @@ function AreasTabContent() {
     setDeletingAreaId(null)
   }
 
-  useEffect(() => {
-    if (usuario) {
-      areasMarkeds();
-    }
-  }, [usuario]);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+
+      const load = async () => {
+        if (!usuario) return;
+        try {
+          await areasMarkeds();
+        } catch (err) {
+          if (!isActive) return;
+          console.warn('areasMarkeds failed', err);
+        }
+      };
+
+      load();
+
+      return () => {
+        isActive = false;
+      };
+    }, [usuario])
+  );
   return isLoadingArea ? (
     <View style={spinner}>
       <SpinningIcon />

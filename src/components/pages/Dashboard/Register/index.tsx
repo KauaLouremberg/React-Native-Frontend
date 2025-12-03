@@ -11,6 +11,7 @@ import { registerValidationSchema } from '../../../../core/models/validation-sch
 import { loginStyle } from '../../../../styles/login/login-style';
 import { ActionButton } from '../../../buttons/action-button';
 import { ButtonCore } from '../../../buttons/button-core';
+import SpinningIcon from '../../../ElementosForm/SpinningIcon';
 import { ToastNotify } from '../../../ElementosForm/Toast';
 import { Input } from '../../../input/input';
 import { Texto } from '../../../texto';
@@ -151,7 +152,7 @@ export default function Register({ navigation }: any) {
             onPress={handleSubmit(onSubmit)}
             disabled={isRegisterRequesting}
           >
-            Registrar-se
+            {!isRegisterRequesting ? "Registrar-se" : <SpinningIcon text={false} color="white" size={20} />}
           </ButtonCore>
         </View>
       </View>

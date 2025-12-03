@@ -1,6 +1,7 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { LocateFixed, MapPin, MapPinCheck, MapPinned, MapPinOff, MapPinPen, MapPinPlusInside, MapPinX } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Button, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Dimensions, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useSelector } from 'react-redux';
@@ -14,6 +15,8 @@ import { requestLocationPermission } from '../../../PermissionComponent';
 import { Texto } from '../../../texto';
 
 export default function MapScreen() {
+
+  const { width } = Dimensions.get('window');
   const [coordenadas, setCoordenadas] = useState<any>(null);
   const [region, setRegion] = useState<any>(null);
   const [showMap, setShowMap] = useState(true);
@@ -22,6 +25,7 @@ export default function MapScreen() {
   const userType = useSelector((state: any) => state.userType);
   const user = useSelector((state: any) => state.user);
   const [markers, setMarkers] = useState([]);
+  const [blocked, setIsBlocked] = useState(false);
 
   const [areas, setAreas] = useState<any[]>([]);
   const [drawingArea, setDrawingArea] = useState(false);
@@ -34,6 +38,7 @@ export default function MapScreen() {
   const [nome, setNome] = useState('Area Segura');
   const [isActive, setIsActive] = useState(false);
   const [markerSelected, setMarkerSelected] = useState<string | number | any >(null);
+  const [markersBlock, setMarkersBlock] = useState(false);
 
   const ws = useRef<WebSocket | null>(null);
 
@@ -204,46 +209,60 @@ export default function MapScreen() {
     setSelectedCenter(null);
   };
 
-  useEffect(() => {
-    async function loadAreas() {
-      const res = await api.get("areas/");
-      setAreas(res.data.map((a: any) => ({
-        center: { latitude: a.latitude, longitude: a.longitude },
-        radius: a.raio,
-        nome: a.nome
-      })));
-    }
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-    loadAreas();
-    initLocation()
-  }, []);
+      const loadAll = async () => {
+        try {
+          const [areasRes, markersRes] = await Promise.all([
+            api.get('areas/'),
+            api.get('marcadores/'),
+          ]);
+
+          if (!isActive) return;
+
+          setAreas(
+            areasRes.data.map((a: any) => ({
+              center: { latitude: a.latitude, longitude: a.longitude },
+              radius: a.raio,
+              nome: a.nome,
+            })),
+          );
+
+          if (!isActive) return;
+          setMarkers(markersRes.data);
+
+          if (!isActive) return;
+          await initLocation();
+        } catch (err) {
+          if (!isActive) return;
+          console.warn('loadAll failed', err);
+        }
+      };
+
+      loadAll();
+
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   async function loadMarkers() {
     try {
       const res = await api.get("marcadores/");
       setMarkers(res.data);
     } catch (err) {
-      console.log(err);
+      console.log('loadMarkers error', err);
     }
   }
-
-  useEffect(() => {
-    async function loadAreas() {
-      const res = await api.get("areas/");
-      setAreas(res.data.map((a: any) => ({
-        center: { latitude: a.latitude, longitude: a.longitude },
-        radius: a.raio,
-        nome: a.nome
-      })));
-    }
-
-    loadAreas();
-    loadMarkers();
-    initLocation()
-  }, []);
-
+  
   const saveMarkersToBackend = async () => {
+    setMarkersBlock(true);
     if (markers.length === 0) {
+      setMarkersBlock(false);
+
       return ToastNotify({
         type: "error",
         title: "Nenhum ponto",
@@ -262,11 +281,13 @@ export default function MapScreen() {
         });
       }
 
+      setMarkersBlock(false);
+
       ToastNotify({
         type: "success",
         title: "Sucesso!",
         message: "Todos os marcadores foram salvos!",
-        time: 1500
+        time: 2500
       });
 
       await loadMarkers();
@@ -274,6 +295,7 @@ export default function MapScreen() {
       setMarkers(prev => prev.filter((m: any) => m.criado_em));
 
     } catch (err) {
+      setMarkersBlock(false);
       console.log(err);
       ToastNotify({
         type: "error",
@@ -316,7 +338,6 @@ export default function MapScreen() {
       });
     }
   }
-
 
   return (
     <View style={styles.container}>
@@ -397,7 +418,7 @@ export default function MapScreen() {
 
               {!user.is_amparado && coordenadas && (
                 <Marker
-                  title={user.nome}
+                  title={userType.amparado_nome || 'Amparado'}
                   coordinate={coordenadas}
                   anchor={{ x: 0.5, y: 0.5 }}
                 >
@@ -433,10 +454,11 @@ export default function MapScreen() {
             {isOpen ? (
                 <View 
                   style={{
-                    position: "absolute",
                     top: "20%",
                     alignSelf: "center",
                     zIndex: 999,
+                    width: width * 0.9,
+                    height: width * 0.,
                     backgroundColor: colors.background,
                     borderWidth: 0.5,
                     padding: 10,
@@ -452,7 +474,7 @@ export default function MapScreen() {
                     value={nomeValue}
                     onChangeText={setNomeValue}
                     maxLength={255} 
-                    style={{ width: 380, height: 40 }}
+                    style={{ width: width * 0.85, height: 40 }}
 
                    />
 
@@ -463,7 +485,7 @@ export default function MapScreen() {
                     value={valueRadius}
                     onChangeText={setValueRadius as any}
                     maxLength={4} 
-                    style={{ width: 380, height: 40 }}
+                    style={{ width: width * 0.85, height: 40 }}
 
                    />
 
@@ -477,10 +499,12 @@ export default function MapScreen() {
                         message: 'Configuracao salva com sucesso!',
                       });
 
-                    }} style={{
+                    }} 
+                    style={{
                       backgroundColor: colors.primaryLight,
                       borderRadius: 8,
                       height: 35,
+                      width: width * 0.85,
                       justifyContent: 'center'
                     }}
                     >
@@ -564,14 +588,16 @@ export default function MapScreen() {
               ) : null}
               
               {user.is_amparado ? (
-                <TouchableOpacity onPress={() => saveMarkersToBackend()}>
+                <TouchableOpacity onPress={() => {
+                  saveMarkersToBackend()
+                  }}>
                   <View style={{
                     width: 60,
                     height: 60,
                     borderRadius: 60,
                     borderWidth: 1,
                     borderColor: colors.white,
-                    backgroundColor: colors.primaryLight,
+                    backgroundColor: !markersBlock ? colors.primaryLight : 'grey',
                     justifyContent: 'center',
                     alignItems: 'center'
                   }}>
@@ -612,20 +638,30 @@ export default function MapScreen() {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => user.is_amparado ? sendNotification(userType.responsavel_id) : 
-                ToastNotify({
-                  type: "error",
-                  title: "Erro",
-                  time: 2500,
-                  message: "Você é um responsável, não pode enviar notificação!"
-                })}>
+              <TouchableOpacity disabled={blocked} onPress={() => {
+                if (user.is_amparado) {
+                  
+                  if (!userType.responsavel_id)
+                  sendNotification(userType.responsavel_id);
+                  setIsBlocked(true);
+                  setTimeout(() => {setIsBlocked(false)}, 2500);
+                }
+                else {
+                  ToastNotify({
+                    type: "error",
+                    title: "Erro",
+                    time: 2500,
+                    message: "Você é um responsável, não pode enviar notificação!"
+                  })
+                }
+                }}>
                 <View style={{
                   width: 60,
                   height: 60,
                   borderRadius: 60,
                   borderWidth: 1,
                   borderColor: colors.white,
-                  backgroundColor: 'red',
+                  backgroundColor: !blocked ? 'red' : 'grey',
                   justifyContent: 'center',
                   alignItems: 'center'
                 }}>
@@ -695,11 +731,7 @@ export default function MapScreen() {
               )}
             </View>
           </>) : (
-            <View style={styles.controls}>
-              {/* <Button title="Tela cheia" onPress={() => setIsFullScreen(true)} /> */}
-              <Button title="Centralizar" onPress={() => mapRef.current?.animateToRegion(region, 500)} />
-              <Button title="Fechar Mapa" onPress={() => setShowMap(false)}/>
-            </View>
+            null
           )}
         </>
       )}

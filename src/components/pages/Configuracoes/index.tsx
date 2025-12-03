@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { LogOut, UserPlus } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,16 +45,16 @@ const Configuracoes = ({ navigation }: any) => {
     queryKey: ['config', usuario.id],
     enabled: !!usuario.id,
     queryFn: () => perfilRequest(),
-    gcTime: 5 * 60 * 1000,
-    staleTime: Infinity
+    gcTime: 0,
+    staleTime: 0
   })
 
   const { isLoading: enderecoIsLoading, isFetching: enderecoIsFetching, data: enderecoData } = useQuery({
     queryKey: ['endereco', usuario.id],
     enabled: !!usuario.id && !!usuario.has_perfil,
     queryFn: () => enderecoRequest(),
-    gcTime: 5 * 60 * 1000,
-    staleTime: Infinity
+    gcTime: 0,
+    staleTime: 0
   })
 
   const {
@@ -122,9 +122,8 @@ const Configuracoes = ({ navigation }: any) => {
           title: 'Sucesso!',
           message: 'Suas informacoes foram salvas com sucesso!',
         });
-        if (!usuario.has_perfil) {
-          dispatch(setUser({ has_perfil: true }));
-        }
+        
+        dispatch(setUser({ has_perfil: true }));
       },
     });
   

@@ -1,15 +1,19 @@
-import { Clipboard as ClipBoard, Frown } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { Clipboard } from 'lucide-react-native';
+import { useCallback, useEffect, useState } from 'react';
 import {
+  Dimensions,
   NativeModules,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { colors } from '../../../../core/constants/colors';
+import store from '../../../../store';
+import { setUserType } from '../../../../store/userTypeSlice';
 import { loginStyle } from '../../../../styles/login/login-style';
-import { ButtonCore } from '../../../buttons/button-core';
+import FloatButton from '../../../buttons/float-button';
 import api from '../../../conexao/api';
 import OtpInput from '../../../ElementosForm/OtpInput';
 import SpinningIcon from '../../../ElementosForm/SpinningIcon';
@@ -18,18 +22,34 @@ import { Texto } from '../../../texto';
 
 export default function GenerateCode() {
   const [codigoAmp, setCodigoAmp] = useState();
+  const { width } = Dimensions.get('window');
   const [isLoadingSendCode, setIsLoadingSendCode] = useState<boolean>(false);
   const { ClipboardModule } = NativeModules;
   const [isValid, setIsValid] = useState<any>();
   const [codigoCompleto, setCodigoCompleto] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigation<any>();
 
   const usuario = useSelector((state: any) => state.user);
-  const userType = useSelector((state: any) => state.userType);
 
   const {
       title,
     } = loginStyle;
+
+  const GenNewCode = () => {
+    setLoading(true);
+
+    api.get("ampcodigo/")
+    .then((res) => {
+      setCodigoAmp(res.data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      setLoading(false);
+      console.warn(err);
+    })
+  }
 
   const createCodigo = () => {
     setIsLoadingSendCode(true);
@@ -57,31 +77,6 @@ export default function GenerateCode() {
     }
   }
 
-  const enviaCodigo = () => {
-    setIsLoadingSendCode(true);
-
-    api
-      .post('responsavel/', { id: codigoCompleto })
-      .then(res => {
-        ToastNotify({
-          type: 'success',
-          title: 'Sucesso!',
-          message: 'Vinculo criado com sucesso!',
-          time: 2500,
-        });
-        setIsValid('');
-      })
-      .catch(err => 
-        ToastNotify({
-          type: 'error',
-          title: 'Erro!',
-          message: 'Ocorreu um erro ao criar o Vinculo!',
-          time: 2500,
-        })
-      )
-      .finally(() => setIsLoadingSendCode(false));
-  };
-
   const verifyCodigo = (codigo: any) => {
     setIsLoading(true);
 
@@ -105,12 +100,75 @@ export default function GenerateCode() {
       });
   };
 
+  const loadUserType = async (isActiveRef?: { current: boolean }) => {
+    try {
+      const responseInfo = await api.get('information/');
+      if (isActiveRef && !isActiveRef.current) return;
+
+      const infoData = responseInfo.data;
+      const typePayload = {
+        responsavel_id: infoData.responsavel_id,
+        responsavel_name: infoData.responsavel_name,
+        amparado_id: infoData.amparado_id,
+        amparado_name: infoData.amparado_name,
+      };
+
+      store.dispatch(setUserType(typePayload));
+    } catch (err) {
+      console.warn('loadUserType failed', err);
+
+      const typePayload = {
+        responsavel_id: null,
+        responsavel_name: null,
+        amparado_id: null,
+        amparado_name: null,
+      };
+
+      store.dispatch(setUserType(typePayload));
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const isActiveRef = { current: true };
+      loadUserType(isActiveRef);
+      return () => {
+        isActiveRef.current = false;
+      };
+     }, [usuario.is_amparado, codigoAmp])
+   );
 
   useEffect(() => {
     if (usuario.is_amparado && !codigoAmp) {
       createCodigo();
     }
   }, [usuario.is_amparado, codigoAmp]);
+
+  const enviaCodigo = async () => {
+    setIsLoadingSendCode(true);
+    try {
+      await api.post('responsavel/', { id: codigoCompleto });
+
+      ToastNotify({
+        type: 'success',
+        title: 'Sucesso!',
+        message: 'Vinculo criado com sucesso!',
+        time: 2500,
+      });
+      setIsValid('');
+
+      await loadUserType();
+    } catch (err) {
+      ToastNotify({
+        type: 'error',
+        title: 'Erro!',
+        message: 'Ocorreu um erro ao criar o Vinculo!',
+        time: 2500,
+      });
+    } finally {
+      setIsLoadingSendCode(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -122,88 +180,123 @@ export default function GenerateCode() {
         </>
       ) : (
         <>
-        {usuario.has_perfil && userType.amparado_id && userType.responsavel_id ? 
-          (
-          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-              <Frown 
-                color={colors.primaryLight} 
-                size={32} 
-                style={{justifyContent: 'center', alignSelf: 'center', marginBottom: 10}}
-              />
-              <Texto 
+          {usuario.is_amparado ? (<>
+            <Texto style={[title, { left: 20, top: 35 }]}>
+                 Código de Vinculação
+             </Texto>
+             <View 
+               style={{
+                 justifyContent: 'center',
+                 alignItems: 'center',
+                 flex: 0.75, 
+             }}>
+              <TouchableOpacity 
                 style={{
-                  justifyContent: 'center',
-                  alignSelf: 'center', 
-                  fontSize: 15,
-                  color: colors.primaryLight
+                justifyContent: 'center',
+                backgroundColor: colors.input,
+                bottom: 30,
+                borderWidth: 0.5,
+                width: width * 0.8, 
+                height: width * 0.13,
+                borderRadius: 6
+              }}
+              >
+                <Texto style={{ 
+                  alignSelf: 'center',
+                  letterSpacing: 25,
+                  fontSize: 20,
+                  fontWeight: 'bold',
                 }}>
-                Tela não finalizada
-              </Texto>
-          </View>
-          ) : (<>
-            {usuario.is_amparado ? (
-            <View style={styles.wrapperAmparado}>
-              
-              <View style={styles.codigoBox}>
-                <View style={styles.contentRow}>
-                  <Texto style={styles.codigoValor}>{codigoAmp}</Texto>
-
-                  <TouchableOpacity
-                    onPress={() => ClipboardModule.copy(codigoAmp)}
-                    style={[styles.iconButton]}
-                  >
-                    <ClipBoard size={20} color={colors.white} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.textWrapper}>
-                <Texto style={styles.text}>
-                  Este código é um código de vinculação. Copie o código, e no
-                  celular do responsável, insira o código para realizar a
-                  vinculação.
+                  {codigoAmp}
                 </Texto>
+              </TouchableOpacity>
+              <View 
+                style={{ 
+                  backgroundColor: colors.input,
+                  padding: 10,
+                  borderRadius: 6,
+                  borderWidth: 0.8
+                }}>
+                <TouchableOpacity onPress={() => ClipboardModule.copy(codigoAmp)}>
+                  <Clipboard />
+                </TouchableOpacity>
               </View>
+              <Texto style={{top: 10}}>Copiar Código</Texto>
+
+                <TouchableOpacity 
+                  disabled={loading}
+                  onPress={() => GenNewCode()}
+                >
+                <View 
+                  style={{ 
+                    backgroundColor: !loading ? colors.primaryLight : 'grey',
+                    borderRadius: 6,
+                    top: 50,
+                    width: width * 0.5,
+                    height: width * 0.10,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                  >
+                    <Texto style={{color: colors.white}}>{!loading ? "Gerar Código" : <SpinningIcon text={false} color={colors.white} />}</Texto>
+                </View>
+                </TouchableOpacity>
             </View>
-           ) : (
+           </>) : (
             <View style={styles.wrapperNaoAmparado}>
               <Texto style={[title, {left: 20}]}>
                 Vinculação de Amparado
               </Texto>
-              <OtpInput
-                length={6}
-                onComplete={(e: any) => {
-                  verifyCodigo(e);
-                }}
-                color={isValid}
-              />
-              <Texto style={{justifyContent: 'center', alignSelf: 'center', fontSize: 15 }}>
+              <View style={{justifyContent: 'center', flex: 0.8, alignItems: 'center'}}>
+                <OtpInput
+                  length={6}
+                  onKeyboardHide={() => {
+                    isValid !== 'green' ? setIsValid(null) : null;
+                  }}
+                  onComplete={(e: any) => {
+                    verifyCodigo(e);
+                  }}
+                  color={isValid}
+                />
+                <TouchableOpacity
+                  onPress={() => enviaCodigo()}
+                  disabled={isValid !== 'green'} 
+                  style={{ 
+                    backgroundColor: isValid === 'green' ? colors.primaryLight : 'grey', 
+                    width: width * 0.5, 
+                    height: width * 0.1, 
+                    top: 45, 
+                    borderRadius: 6,
+                    justifyContent: 'center',
+                  }}>
+
+                  <View 
+                    style={{ 
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Texto 
+                      style={{
+                        color: colors.white
+                      }}>
+                        {!isLoading ? "Vincular Amparado" : <SpinningIcon text={false} color={colors.white} />}
+                    </Texto>
+                  </View>
+                </TouchableOpacity>
+                
+              </View>
+              <Texto style={{justifyContent: 'center', alignSelf: 'center', fontSize: 15, flex: 0.35 }}>
                 Insira o código gerado na conta do Amparado!
               </Texto>
-              {isLoading && (
-                <View style={{position: 'absolute', marginTop: "100%", marginLeft: "45%"}}>
-                  <SpinningIcon text={false} color={colors.primaryLight} size={25} />
-                </View>
-              )}
-          
-              <View style={styles.wrapperButton}>
-                <ButtonCore
-                  disabled={isLoadingSendCode || isValid !== "green" ? true : false}
-                  onPress={() => enviaCodigo()}
-                  style={styles.botaoEnviar}
-                >
-                  {isLoadingSendCode ? (
-                    <SpinningIcon text={false} color="white" />
-                  ) : (
-                    'Enviar código'
-                  )}
-                </ButtonCore>
-              </View>
             </View>
           )}
+          <FloatButton
+            onPress={() => navigate.goBack()}
+            title={"Voltar"}
+            type='submit'
+            position={'bottom'}
+          />
           </>)}
-        </>
-      )}
     </View>
   );
 }
@@ -264,7 +357,6 @@ const styles = StyleSheet.create({
   },
   wrapperNaoAmparado: {
     flex: 1,
-    justifyContent: "space-between",
     paddingVertical: 40,
   },
   botaoEnviar: {

@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react-native";
 import { Controller, useForm } from "react-hook-form";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { colors } from "../../../core/constants/colors";
 import { useAmparadoRequestingMutation } from "../../../core/http/react-query/amparado";
 import { AmparadoValidationDto } from "../../../core/models/dto/amparado-validation-dto";
 import { registerValidationSchema } from "../../../core/models/validation-schemas/register-validation-schema";
 import { loginStyle } from "../../../styles/login/login-style";
 import { ButtonCore } from "../../buttons/button-core";
+import FloatButton from "../../buttons/float-button";
 import SpinningIcon from "../../ElementosForm/SpinningIcon";
 import { ToastNotify } from "../../ElementosForm/Toast";
 import { HeaderNavigation } from "../../headerNavigation/header-navigation";
@@ -63,21 +63,6 @@ const Amparado = ({navigation}: any) => {
 
   return (
   <>
-  {isAmparadoRequesting ? (
-  <View
-    style={{
-      position: "absolute",
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      justifyContent: "center",
-      alignItems: "center",
-    }}
-  >
-    <SpinningIcon color={colors.primary} size={40} />
-  </View>
-  ) : (
   <HeaderNavigation
     title="Amparado"
     initialTabKey="perfil"
@@ -87,7 +72,7 @@ const Amparado = ({navigation}: any) => {
         key: 'amparado',
         title: 'Amparado',
         render: () => (
-          <View style={[loginWrapper, {position: 'relative', height: '100%', width: 380, left: 25}]}>
+          <View style={[loginWrapper, {position: 'relative', height: '100%', width: 380, alignSelf: "center"}]}>
 
             <Texto style={title}>Registre um Amparado aqui!</Texto>
 
@@ -137,36 +122,22 @@ const Amparado = ({navigation}: any) => {
                 onPress={handleSubmit(onSubmit)}
                 disabled={isAmparadoRequesting}
               >
-                Registrar Amparado
+                {!isAmparadoRequesting ? "Registrar Amparado" : <SpinningIcon text={false} color="white" size={20} />}
               </ButtonCore>
             </View>
           </View>
         ),
       },
     ]}
-  />)}
-  
-  <View
-    style={{
-      position: 'absolute',
-      right: 16, 
-      bottom: 16,
-    }}
-  >
-    <TouchableOpacity onPress={() => navigation.goBack()} style={{backgroundColor: colors.primaryLight, borderRadius: 60, right: 10}}>
-      <View
-        style={{ 
-          borderRadius: 60,
-          width: 60,
-          height: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <ArrowLeft size={"30px"} color={colors.white} />
-      </View>
-    </TouchableOpacity>
-  </View>
+  />
+
+    <FloatButton
+      disabled={isAmparadoRequesting ? true : false}
+      onPress={() => navigation.goBack()}
+      title={'Voltar'}
+      type='submit'
+      position={'bottom'}
+    />
   </>
   )
 }
